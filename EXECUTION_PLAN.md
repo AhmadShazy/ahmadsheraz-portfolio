@@ -7,8 +7,8 @@
 
 | Sub-Phase | Name | Branch | Status |
 |---|---|---|---|
-| **P0.1** | Project Foundation & Git Setup | feat/project-foundation | 🔴 TODO |
-| **P1.1** | Shared Components | feat/shared-components | 🔴 TODO |
+| **P0.1** | Project Foundation & Git Setup | feat/project-foundation | 🟢 DONE |
+| **P1.1** | Shared Components | feat/shared-components | 🟢 DONE |
 | **P1.2** | Hero — Layout & Typewriter | feat/hero-layout | 🔴 TODO |
 | **P1.3** | Hero — 3D (Globe, Particles, Geometric) | feat/hero-3d | 🔴 TODO |
 | **P1.4** | About Section | feat/about | 🔴 TODO |
