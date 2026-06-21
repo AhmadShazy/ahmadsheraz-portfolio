@@ -10,7 +10,7 @@
 | **P0.1** | Project Foundation & Git Setup | feat/project-foundation | 🟢 DONE |
 | **P1.1** | Shared Components | feat/shared-components | 🟢 DONE |
 | **P1.2** | Hero — Layout & Typewriter | feat/hero-layout | 🟢 DONE |
-| **P1.3** | Hero — 3D (Globe, Particles, Geometric) | feat/hero-3d | 🔴 TODO |
+| **P1.3** | Hero — 3D (Globe, Particles, Geometric) | feat/hero-3d | 🟢 DONE |
 | **P1.4** | About Section | feat/about | 🔴 TODO |
 | **P1.5** | Skills Section | feat/skills | 🔴 TODO |
 | **P1.6** | Projects Section | feat/projects | 🔴 TODO |
