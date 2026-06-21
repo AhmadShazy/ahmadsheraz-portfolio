@@ -31,3 +31,17 @@ body {
   box-shadow: 0 8px 32px rgba(13, 148, 136, 0.08);
   border-radius: 16px;
 }
+
+/* Respect users who ask the OS to reduce motion: neutralize CSS animations
+   (e.g. animate-bounce, animate-ping) and transitions. JS-driven motion
+   (Typed.js, GSAP) is gated separately in its components via matchMedia. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
