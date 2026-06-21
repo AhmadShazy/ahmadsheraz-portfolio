@@ -14,7 +14,7 @@
 | **P1.4** | About Section | feat/about | 🟢 DONE |
 | **P1.5** | Skills Section | feat/skills | 🟢 DONE |
 | **P1.6** | Projects Section | feat/projects | 🟢 DONE |
-| **P1.7** | Education + Experience | feat/education-experience | 🔴 TODO |
+| **P1.7** | Education + Experience | feat/education-experience | 🟢 DONE |
 | **P1.8** | Hire Me Section | feat/hire-me | 🔴 TODO |
 | **P1.9** | Contact Section | feat/contact | 🔴 TODO |
 | **P1.10** | Full Assembly + Polish + Responsive | feat/polish-assembly | 🔴 TODO |
