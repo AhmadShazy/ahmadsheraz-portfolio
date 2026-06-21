@@ -2,6 +2,7 @@ import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import HeroSection from "@/components/Hero/HeroSection";
 import AboutSection from "@/components/About/AboutSection";
+import SkillsSection from "@/components/Skills/SkillsSection";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <main className="flex flex-1 flex-col">
         <HeroSection />
         <AboutSection />
+        <SkillsSection />
       </main>
       <Footer />
     </>
