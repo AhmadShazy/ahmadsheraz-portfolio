@@ -32,6 +32,41 @@ body {
   border-radius: 16px;
 }
 
+/* Hire Me — subtle animated gradient shimmer (teal <-> ivory) behind the section */
+@keyframes hireShimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+.hire-shimmer {
+  background: linear-gradient(
+    120deg,
+    rgba(204, 251, 241, 0.55),
+    rgba(255, 251, 242, 0.25),
+    rgba(20, 184, 166, 0.18)
+  );
+  background-size: 220% 220%;
+  animation: hireShimmer 14s ease-in-out infinite;
+}
+
+/* Hire Me — pulsing teal glow on the primary CTA (hover only) */
+@keyframes ctaPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 16px rgba(13, 148, 136, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(13, 148, 136, 0.7);
+  }
+}
+.cta-glow:hover {
+  animation: ctaPulse 1.6s ease-in-out infinite;
+}
+
 /* Respect users who ask the OS to reduce motion: neutralize CSS animations
    (e.g. animate-bounce, animate-ping) and transitions. JS-driven motion
    (Typed.js, GSAP) is gated separately in its components via matchMedia. */
