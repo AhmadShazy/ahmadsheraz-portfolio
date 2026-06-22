@@ -15,7 +15,7 @@
 | **P1.5** | Skills Section | feat/skills | 🟢 DONE |
 | **P1.6** | Projects Section | feat/projects | 🟢 DONE |
 | **P1.7** | Education + Experience | feat/education-experience | 🟢 DONE |
-| **P1.8** | Hire Me Section | feat/hire-me | 🔴 TODO |
+| **P1.8** | Hire Me Section | feat/hire-me | 🟢 DONE |
 | **P1.9** | Contact Section | feat/contact | 🔴 TODO |
 | **P1.10** | Full Assembly + Polish + Responsive | feat/polish-assembly | 🔴 TODO |
 | **P1.11** | Deployment (Vercel + Cloudflare DNS) | feat/deployment | 🔴 TODO |
