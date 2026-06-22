@@ -9,6 +9,7 @@ export default function TealButton({
   onClick,
   href,
   variant = "primary",
+  type = "button",
   className = "",
 }) {
   // Shared sizing / shape for both variants
@@ -34,7 +35,7 @@ export default function TealButton({
   }
 
   return (
-    <button type="button" onClick={onClick} className={classes}>
+    <button type={type} onClick={onClick} className={classes}>
       {children}
     </button>
   );
