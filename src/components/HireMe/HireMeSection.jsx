@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef } from "react";
 import { Bot, LayoutDashboard, BarChart3 } from "lucide-react";
 import SectionWrapper from "@/components/shared/SectionWrapper";
 import GlassCard from "@/components/shared/GlassCard";
 import TealButton from "@/components/shared/TealButton";
+import useStaggerReveal from "@/hooks/useStaggerReveal";
 
 // Services — AI-first positioning (CONTEXT.md / CLAUDE.md). AI is the star;
 // web dev is the vehicle. Gold icon + teal title per card.
@@ -43,33 +42,8 @@ function scrollToId(id) {
 export default function HireMeSection() {
   const cardsRef = useRef(null);
 
-  useEffect(() => {
-    const el = cardsRef.current;
-    if (!el) return;
-    gsap.registerPlugin(ScrollTrigger);
-
-    const items = el.querySelectorAll("[data-service-card]");
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        items,
-        { opacity: 0, y: 24 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "power2.out",
-          stagger: 0.15,
-          scrollTrigger: { trigger: el, start: "top 80%" },
-        }
-      );
-    }, el);
-
-    const refreshId = requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => {
-      cancelAnimationFrame(refreshId);
-      ctx.revert();
-    };
-  }, []);
+  // Stagger the service cards in on scroll (respects reduced motion)
+  useStaggerReveal(cardsRef, "[data-service-card]");
 
   return (
     <SectionWrapper
@@ -83,10 +57,11 @@ export default function HireMeSection() {
       />
 
       <div className="relative mx-auto max-w-5xl text-center">
-        {/* Headline + subheading */}
+        {/* Headline + teal divider + subheading */}
         <h2 className="text-3xl font-bold text-text-primary sm:text-4xl lg:text-5xl">
           Let&apos;s Build Something Intelligent
         </h2>
+        <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-teal" />
         <p className="mx-auto mt-5 max-w-2xl text-base text-text-secondary sm:text-lg">
           I build AI-powered web applications and smart management systems for
           small businesses that want to automate and think smarter.

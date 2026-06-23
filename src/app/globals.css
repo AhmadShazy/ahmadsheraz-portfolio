@@ -15,6 +15,10 @@
   --shadow-card: 0 8px 32px rgba(13, 148, 136, 0.08);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: linear-gradient(135deg, #FFFBF2 0%, #F0FDFA 50%, #CCFBF1 100%);
   min-height: 100vh;

@@ -22,38 +22,37 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeId, setActiveId] = useState("");
 
+  // Teal bottom border once the user scrolls past 50px
   useEffect(() => {
-    const updateNavState = () => {
-      // Add the teal bottom border once the user scrolls past 50px
-      setScrolled(window.scrollY > 50);
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-      // Determine which section is currently in view (last one whose top has
-      // passed ~120px below the viewport top wins).
-      let current = "";
-      for (const link of NAV_LINKS) {
-        const section = document.getElementById(link.id);
-        if (section && section.getBoundingClientRect().top <= 120) {
-          current = link.id;
+  // Highlight the section currently in view with an IntersectionObserver. The
+  // detection band sits near the top of the viewport (15%–20%); the topmost
+  // section overlapping it (in document/NAV_LINKS order) is the active one.
+  useEffect(() => {
+    const visible = new Set();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.add(entry.target.id);
+          else visible.delete(entry.target.id);
         }
-      }
-      setActiveId(current);
-    };
+        const active = NAV_LINKS.find((link) => visible.has(link.id));
+        setActiveId(active ? active.id : "");
+      },
+      { rootMargin: "-15% 0px -80% 0px", threshold: 0 }
+    );
 
-    updateNavState(); // run once on mount to set initial state
+    const sections = NAV_LINKS.map((link) =>
+      document.getElementById(link.id)
+    ).filter(Boolean);
+    sections.forEach((section) => observer.observe(section));
 
-    // Recompute on scroll, but also on events that move sections without a
-    // scroll: viewport resize, full load (fonts/images settling), and arriving
-    // via a hash link such as /#projects.
-    window.addEventListener("scroll", updateNavState, { passive: true });
-    window.addEventListener("resize", updateNavState);
-    window.addEventListener("load", updateNavState);
-    window.addEventListener("hashchange", updateNavState);
-    return () => {
-      window.removeEventListener("scroll", updateNavState);
-      window.removeEventListener("resize", updateNavState);
-      window.removeEventListener("load", updateNavState);
-      window.removeEventListener("hashchange", updateNavState);
-    };
+    return () => observer.disconnect();
   }, []);
 
   // Smooth-scroll to a section, then close the mobile menu

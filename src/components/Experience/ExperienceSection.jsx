@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef } from "react";
 import SectionWrapper from "@/components/shared/SectionWrapper";
+import useStaggerReveal from "@/hooks/useStaggerReveal";
 import ExperienceCard from "./ExperienceCard";
 
 // Experience data. No professional roles yet, so we show the placeholder card
@@ -23,33 +22,8 @@ const EXPERIENCE = [
 export default function ExperienceSection() {
   const listRef = useRef(null);
 
-  useEffect(() => {
-    const el = listRef.current;
-    if (!el) return;
-    gsap.registerPlugin(ScrollTrigger);
-
-    const items = el.querySelectorAll("[data-timeline-item]");
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        items,
-        { opacity: 0, y: 20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "power2.out",
-          stagger: 0.15,
-          scrollTrigger: { trigger: el, start: "top 80%" },
-        }
-      );
-    }, el);
-
-    const refreshId = requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => {
-      cancelAnimationFrame(refreshId);
-      ctx.revert();
-    };
-  }, []);
+  // Stagger the timeline cards in on scroll (respects reduced motion)
+  useStaggerReveal(listRef, "[data-timeline-item]");
 
   return (
     <SectionWrapper id="experience" className="px-6 py-20 lg:py-28">

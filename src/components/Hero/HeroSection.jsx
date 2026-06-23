@@ -7,8 +7,21 @@ import { ChevronDown } from "lucide-react";
 
 // The 3D canvas is loaded only on the client (ssr: false) and code-split out of
 // the main bundle, so Three.js never ships in the server HTML and only loads
-// when the canvas actually mounts.
-const HeroCanvas = dynamic(() => import("./HeroCanvas"), { ssr: false });
+// when the canvas actually mounts. A subtle teal gradient fills the slot while
+// the chunk loads, so there's no blank flash or layout shift.
+const HeroCanvas = dynamic(() => import("./HeroCanvas"), {
+  ssr: false,
+  loading: () => (
+    <div
+      aria-hidden="true"
+      className="h-full w-full rounded-2xl"
+      style={{
+        background:
+          "radial-gradient(circle at 50% 40%, rgba(20,184,166,0.18), rgba(204,251,241,0.10) 70%, transparent)",
+      }}
+    />
+  ),
+});
 
 // Smooth-scroll to a section by id
 function scrollToId(id) {

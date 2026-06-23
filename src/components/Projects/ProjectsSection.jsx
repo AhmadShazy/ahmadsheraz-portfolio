@@ -1,4 +1,8 @@
+"use client";
+
+import { useRef } from "react";
 import SectionWrapper from "@/components/shared/SectionWrapper";
+import useStaggerReveal from "@/hooks/useStaggerReveal";
 import ProjectCard from "./ProjectCard";
 
 // All 7 projects in ranked order — verbatim from CONTEXT.md (single source of
@@ -93,6 +97,11 @@ const PROJECTS = [
 // Projects section: ranked grid of 3D-depth glass cards. Responsive grid goes
 // 1 col (mobile) -> 2 (tablet) -> 3 (desktop). Reveals on scroll via SectionWrapper.
 export default function ProjectsSection() {
+  const gridRef = useRef(null);
+
+  // Stagger the project cards in on scroll (respects reduced motion)
+  useStaggerReveal(gridRef);
+
   return (
     <SectionWrapper id="projects" className="px-6 py-20 lg:py-28">
       <div className="mx-auto max-w-6xl">
@@ -108,9 +117,14 @@ export default function ProjectsSection() {
         </div>
 
         {/* Ranked project grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {PROJECTS.map((project) => (
-            <ProjectCard key={project.rank} project={project} />
+            <div key={project.rank} data-reveal-item className="h-full">
+              <ProjectCard project={project} />
+            </div>
           ))}
         </div>
       </div>

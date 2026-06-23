@@ -36,7 +36,9 @@ import {
   Terminal,
   Send,
 } from "lucide-react";
+import { useRef } from "react";
 import SectionWrapper from "@/components/shared/SectionWrapper";
+import useStaggerReveal from "@/hooks/useStaggerReveal";
 import SkillCard from "./SkillCard";
 
 // Inline GitHub mark — this lucide-react version ships no brand icons. Mirrors
@@ -137,6 +139,11 @@ const SKILL_CARDS = [
 // single column on mobile and grows with the viewport. Reveals on scroll via
 // SectionWrapper.
 export default function SkillsSection() {
+  const gridRef = useRef(null);
+
+  // Stagger the category cards in on scroll (respects reduced motion)
+  useStaggerReveal(gridRef);
+
   return (
     <SectionWrapper id="skills" className="px-6 py-20 lg:py-28">
       <div className="mx-auto max-w-6xl">
@@ -158,6 +165,7 @@ export default function SkillsSection() {
 
         {/* Auto-fit card grid */}
         <div
+          ref={gridRef}
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
@@ -165,12 +173,13 @@ export default function SkillsSection() {
           }}
         >
           {SKILL_CARDS.map((card) => (
-            <SkillCard
-              key={card.title}
-              title={card.title}
-              skills={card.skills}
-              twoCol={card.twoCol}
-            />
+            <div key={card.title} data-reveal-item>
+              <SkillCard
+                title={card.title}
+                skills={card.skills}
+                twoCol={card.twoCol}
+              />
+            </div>
           ))}
         </div>
       </div>
