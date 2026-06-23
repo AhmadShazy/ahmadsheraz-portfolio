@@ -7,17 +7,17 @@
 
 | Sub-Phase | Name | Branch | Status |
 |---|---|---|---|
-| **P0.1** | Project Foundation & Git Setup | feat/project-foundation | 🔴 TODO |
-| **P1.1** | Shared Components | feat/shared-components | 🔴 TODO |
-| **P1.2** | Hero — Layout & Typewriter | feat/hero-layout | 🔴 TODO |
-| **P1.3** | Hero — 3D (Globe, Particles, Geometric) | feat/hero-3d | 🔴 TODO |
-| **P1.4** | About Section | feat/about | 🔴 TODO |
-| **P1.5** | Skills Section | feat/skills | 🔴 TODO |
-| **P1.6** | Projects Section | feat/projects | 🔴 TODO |
-| **P1.7** | Education + Experience | feat/education-experience | 🔴 TODO |
-| **P1.8** | Hire Me Section | feat/hire-me | 🔴 TODO |
-| **P1.9** | Contact Section | feat/contact | 🔴 TODO |
-| **P1.10** | Full Assembly + Polish + Responsive | feat/polish-assembly | 🔴 TODO |
+| **P0.1** | Project Foundation & Git Setup | feat/project-foundation | 🟢 DONE |
+| **P1.1** | Shared Components | feat/shared-components | 🟢 DONE |
+| **P1.2** | Hero — Layout & Typewriter | feat/hero-layout | 🟢 DONE |
+| **P1.3** | Hero — 3D (Globe, Particles, Geometric) | feat/hero-3d | 🟢 DONE |
+| **P1.4** | About Section | feat/about | 🟢 DONE |
+| **P1.5** | Skills Section | feat/skills | 🟢 DONE |
+| **P1.6** | Projects Section | feat/projects | 🟢 DONE |
+| **P1.7** | Education + Experience | feat/education-experience | 🟢 DONE |
+| **P1.8** | Hire Me Section | feat/hire-me | 🟢 DONE |
+| **P1.9** | Contact Section | feat/contact | 🟢 DONE |
+| **P1.10** | Full Assembly + Polish + Responsive | feat/polish-assembly | 🟢 DONE |
 | **P1.11** | Deployment (Vercel + Cloudflare DNS) | feat/deployment | 🔴 TODO |
 | **P2.1** | MongoDB Setup + Mongoose Models | feat/mongodb-models | 🔴 TODO |
 | **P2.2** | API Routes (GET endpoints) | feat/api-routes | 🔴 TODO |

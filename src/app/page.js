@@ -1,9 +1,29 @@
+import Navbar from "@/components/shared/Navbar";
+import Footer from "@/components/shared/Footer";
+import HeroSection from "@/components/Hero/HeroSection";
+import AboutSection from "@/components/About/AboutSection";
+import SkillsSection from "@/components/Skills/SkillsSection";
+import ProjectsSection from "@/components/Projects/ProjectsSection";
+import EducationSection from "@/components/Education/EducationSection";
+import ExperienceSection from "@/components/Experience/ExperienceSection";
+import HireMeSection from "@/components/HireMe/HireMeSection";
+import ContactSection from "@/components/Contact/ContactSection";
+
 export default function Home() {
   return (
-    <div className="flex flex-1 items-center justify-center min-h-screen">
-      <p style={{ color: "#0D9488", fontSize: "1.5rem", fontWeight: 600 }}>
-        ahmadsheraz.com — coming soon
-      </p>
-    </div>
+    <>
+      <Navbar />
+      <main className="flex flex-1 flex-col">
+        <HeroSection />
+        <AboutSection />
+        <SkillsSection />
+        <ProjectsSection />
+        <EducationSection />
+        <ExperienceSection />
+        <HireMeSection />
+        <ContactSection />
+      </main>
+      <Footer />
+    </>
   );
 }
