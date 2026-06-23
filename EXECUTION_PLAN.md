@@ -18,7 +18,7 @@
 | **P1.8** | Hire Me Section | feat/hire-me | 🟢 DONE |
 | **P1.9** | Contact Section | feat/contact | 🟢 DONE |
 | **P1.10** | Full Assembly + Polish + Responsive | feat/polish-assembly | 🟢 DONE |
-| **P1.11** | Deployment (Vercel + Cloudflare DNS) | feat/deployment | 🔴 TODO |
+| **P1.11** | Deployment (Vercel + Cloudflare DNS) | feat/deployment | 🟡 IN PROGRESS — repo deploy-ready (Analytics + v0.1.0); awaiting owner's Vercel import + DNS (see DEPLOYMENT.md) |
 | **P2.1** | MongoDB Setup + Mongoose Models | feat/mongodb-models | 🔴 TODO |
 | **P2.2** | API Routes (GET endpoints) | feat/api-routes | 🔴 TODO |
 | **P2.3** | Database Seed | feat/db-seed | 🔴 TODO |
