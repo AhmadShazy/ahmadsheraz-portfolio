@@ -7,6 +7,14 @@ import useMousePosition from "@/hooks/useMousePosition";
 // Volume radius the particles are scattered within / reset against
 const BOUND = 4;
 
+// Deterministic pseudo-random in [0, 1) from a seed. Used instead of
+// Math.random() so the position generation stays pure (no impure call during
+// render) while still looking scattered.
+function hash(seed) {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
 // A cloud of gold particles that drift slowly upward (wrapping around when they
 // pass the top) and, on desktop, the whole cloud eases gently toward the cursor.
 // Particle count drops and mouse interaction is disabled on mobile.
@@ -21,10 +29,10 @@ export default function Particles3D({ isMobile = false }) {
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      // Uniformly distribute points within the sphere volume
-      const r = BOUND * Math.cbrt(Math.random());
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
+      // Uniformly distribute points within the sphere volume (deterministic)
+      const r = BOUND * Math.cbrt(hash(i * 3 + 1));
+      const theta = hash(i * 3 + 2) * Math.PI * 2;
+      const phi = Math.acos(2 * hash(i * 3 + 3) - 1);
       arr[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       arr[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       arr[i * 3 + 2] = r * Math.cos(phi);

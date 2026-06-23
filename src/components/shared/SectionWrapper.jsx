@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import useReducedMotion from "@/hooks/useReducedMotion";
 
 // Wraps a page section: gives it an `id` for navbar smooth-scroll targeting and
 // fades its contents in (slide up 30px) as the section scrolls into view.
@@ -12,12 +13,22 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 // browser would paint the section visible, then GSAP would snap it to opacity 0
 // and fade it back in — a visible flash. This is a JS-driven interactive
 // portfolio (GSAP/Three.js are core), so requiring JS for the reveal is fine.
+//
+// When the user prefers reduced motion, the section is shown immediately at its
+// final state — no animation, no ScrollTrigger.
 export default function SectionWrapper({ children, id, className = "" }) {
   const sectionRef = useRef(null);
+  const prefersReduced = useReducedMotion();
 
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
+
+    // Reduced motion: reveal instantly (overrides the hidden inline style)
+    if (prefersReduced) {
+      gsap.set(el, { opacity: 1, y: 0 });
+      return;
+    }
 
     // Register the plugin on the client only (avoids SSR window access)
     gsap.registerPlugin(ScrollTrigger);
@@ -51,7 +62,7 @@ export default function SectionWrapper({ children, id, className = "" }) {
       cancelAnimationFrame(refreshId);
       ctx.revert();
     };
-  }, []);
+  }, [prefersReduced]);
 
   return (
     <section
