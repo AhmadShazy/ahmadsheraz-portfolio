@@ -1,3 +1,4 @@
+import Image from "next/image";
 import SectionWrapper from "@/components/shared/SectionWrapper";
 import GlassCard from "@/components/shared/GlassCard";
 
@@ -32,21 +33,56 @@ export default function AboutSection() {
 
         {/* Two columns on desktop, single column on mobile */}
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-          {/* Bio text with a decorative teal accent line down its left edge */}
-          <div className="relative pl-6">
-            <span
-              aria-hidden="true"
-              className="absolute left-0 top-1 bottom-1 w-1 rounded-full bg-teal/40"
-            />
-            <div className="space-y-5">
-              {BIO_PARAGRAPHS.map((paragraph, i) => (
-                <p
-                  key={i}
-                  className="text-base leading-relaxed text-text-secondary sm:text-lg"
+          {/* Left column: profile photo card above the bio */}
+          <div className="space-y-8">
+            {/* Frosted-glass profile photo card (centered on mobile) */}
+            <div className="flex justify-center lg:justify-start">
+              <GlassCard className="flex w-fit flex-col items-center p-5">
+                {/* 240x240 image well with a teal ring; tinted bg shows if the
+                    image file isn't present yet (no broken-icon, no crash) */}
+                <div
+                  className="relative h-60 w-60 overflow-hidden rounded-xl ring-2 ring-teal/40"
+                  style={{ background: "rgba(13, 148, 136, 0.06)" }}
                 >
-                  {paragraph}
-                </p>
-              ))}
+                  <Image
+                    src="/profile.jpg"
+                    alt="Ahmad Sheraz"
+                    fill
+                    sizes="240px"
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+
+                {/* "Available for work" status pill with a pulsing amber dot */}
+                <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/40 px-3 py-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
+                  </span>
+                  <span className="text-sm font-medium text-text-secondary">
+                    Available for work
+                  </span>
+                </div>
+              </GlassCard>
+            </div>
+
+            {/* Bio text with a decorative teal accent line down its left edge */}
+            <div className="relative pl-6">
+              <span
+                aria-hidden="true"
+                className="absolute left-0 top-1 bottom-1 w-1 rounded-full bg-teal/40"
+              />
+              <div className="space-y-5">
+                {BIO_PARAGRAPHS.map((paragraph, i) => (
+                  <p
+                    key={i}
+                    className="text-base leading-relaxed text-text-secondary sm:text-lg"
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
 
