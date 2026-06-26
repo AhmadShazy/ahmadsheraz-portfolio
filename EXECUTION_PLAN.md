@@ -18,7 +18,9 @@
 | **P1.8** | Hire Me Section | feat/hire-me | 🟢 DONE |
 | **P1.9** | Contact Section | feat/contact | 🟢 DONE |
 | **P1.10** | Full Assembly + Polish + Responsive | feat/polish-assembly | 🟢 DONE |
-| **P1.11** | Deployment (Vercel + Cloudflare DNS) | feat/deployment | 🔴 TODO |
+| **P1.11a** | Replace Hero 3D with Particle Constellation | feat/hero-constellation | 🔴 TODO |
+| **P1.11b** | Add Profile Photo to About Section | feat/about-photo | 🔴 TODO |
+| **P1.11** | Deployment (Vercel + Cloudflare DNS) | feat/deployment | 🟡 IN PROGRESS — repo deploy-ready (Analytics + v0.1.0); awaiting owner's Vercel import + DNS (see DEPLOYMENT.md). RUN P1.11a + P1.11b FIRST. |
 | **P2.1** | MongoDB Setup + Mongoose Models | feat/mongodb-models | 🔴 TODO |
 | **P2.2** | API Routes (GET endpoints) | feat/api-routes | 🔴 TODO |
 | **P2.3** | Database Seed | feat/db-seed | 🔴 TODO |
@@ -635,9 +637,126 @@ Commit and merge to dev. Then merge dev to main:
 
 ---
 
+### P1.11a — Replace Hero 3D with Particle Constellation
+**Branch:** `feat/hero-constellation` (from `dev`)
+**Session Goal:** Remove the underperforming globe + separate particles + geometric object, and consolidate all three into ONE unified particle constellation (AI/neural-network node graph). Runs BEFORE deployment.
+
+**Session Prompt:**
+```
+Read CLAUDE.md, EXECUTION_PLAN.md, and CONTEXT.md.
+Current sub-phase: P1.11a — Replace Hero 3D with Particle Constellation
+Branch: feat/hero-constellation (create from dev)
+
+The P1.3 rotating globe underperformed. Remove the globe, the separate
+particles layer, and the geometric object, and consolidate all three into
+ONE unified "particle constellation" — an AI/neural-network node graph.
+This happens BEFORE first deployment (P1.11).
+
+DELETE these files (consolidated into one component):
+- src/components/Hero/Globe3D.jsx
+- src/components/Hero/Particles3D.jsx
+- src/components/Hero/GeometricObject.jsx
+- src/components/Hero/HeroCanvas.jsx
+- src/hooks/useMousePosition.js   (only the old 3D objects used it — remove if nothing else imports it; if anything else does, keep it)
+(Match exact file casing — Vercel's Linux build is case-sensitive.)
+
+KEEP unchanged:
+- src/components/Hero/HeroContent.jsx (typewriter, badge, headings)
+
+CREATE src/components/Hero/ParticleConstellation.jsx — a React Three Fiber component:
+- 80 nodes (Points) drifting slowly in 3D space, color #0D9488 (teal).
+- Draw line segments between any two nodes closer than a distance threshold;
+  line color teal at ~0.18 opacity. Lines rebuild every frame.
+- Nodes gently repel from the cursor (project pointer into the scene via
+  useThree viewport — no external mouse hook needed).
+- Whole field rotates slowly on the Y axis for parallax depth.
+- PERFORMANCE (critical — must reflect real engineering, not a tutorial):
+  * Pre-allocate the line BufferGeometry ONCE with useMemo and reuse it every
+    frame via setDrawRange. NEVER allocate buffers inside useFrame.
+  * Generate node positions + velocities once in useMemo.
+  * Cap dpr at [1, 2] on the Canvas.
+- ACCESSIBILITY: read window.matchMedia("(prefers-reduced-motion: reduce)").
+  If set, render a single static frame (no drift, no rotation, no cursor repel).
+  Mark the wrapper aria-hidden="true".
+- Default export: renders <Canvas> inside an absolutely-positioned full-bleed
+  div (absolute inset-0 -z-10), camera position [0,0,10], fov 60, gl alpha true.
+
+UPDATE src/components/Hero/HeroSection.jsx:
+- Remove the dynamic import of HeroCanvas and its JSX usage.
+- Add: const ParticleConstellation = dynamic(() => import('./ParticleConstellation'), { ssr: false })
+- Render <ParticleConstellation /> as the background layer; keep <HeroContent />
+  above it at z-10. Keep the existing loading fallback (teal gradient div).
+- Do not change HeroContent or the typewriter roles.
+
+Run npm run build — must pass. Commit and merge to dev.
+```
+
+**Done When:**
+- [ ] Old globe / particles / geometric / canvas files removed
+- [ ] Nodes drift, lines connect/disconnect dynamically, cursor pushes nearby nodes
+- [ ] Hero text (HeroContent) stays crisp and readable above the 3D layer
+- [ ] OS reduced-motion renders a static field
+- [ ] No SSR errors (dynamic import, ssr: false)
+- [ ] `npm run build` passes
+- [ ] Committed and merged to `dev`
+
+---
+
+### P1.11b — Add Profile Photo to About Section
+**Branch:** `feat/about-photo` (from `dev`)
+**Session Goal:** Add a frosted-glass profile photo card to the About section (NOT the hero). Runs BEFORE deployment.
+
+**Session Prompt:**
+```
+Read CLAUDE.md, EXECUTION_PLAN.md, and CONTEXT.md.
+Current sub-phase: P1.11b — Add Profile Photo to About Section
+Branch: feat/about-photo (create from dev)
+
+DECISION: The photo lives in About, NOT the hero — the hero stays photo-free
+for a more senior look. About (P1.4) already has a two-column layout: bio text
+left, glass "quick stats" card right.
+
+ASSET: Use /public/profile.jpg (square image, 600x600 or larger, .jpg or .webp).
+I will add the actual file before deployment. If missing, the build must still
+pass (no crash).
+
+UPDATE src/components/About/AboutSection.jsx:
+- Use next/image (import Image from "next/image").
+- Add a frosted-glass profile photo card ABOVE or BESIDE the bio in the left
+  column (keep the existing quick-stats glass card on the right untouched).
+  On mobile, photo stacks on top, centered.
+- Photo card — use the locked design tokens, not arbitrary values:
+  * background rgba(255,255,255,0.42), backdrop-filter blur(24px),
+    border 1px rgba(255,255,255,0.75),
+    box-shadow 0 8px 32px rgba(13,148,136,0.08), rounded-2xl, padding.
+  * Inner image container 240x240, rounded-xl, overflow-hidden,
+    ring-2 ring teal (#0D9488) at ~40% opacity.
+  * <Image src="/profile.jpg" alt="Ahmad Sheraz" fill sizes="240px"
+    className="object-cover" priority />
+- Below the photo: an "Available for work" status pill — small amber (#F59E0B)
+  dot with a Tailwind animate-ping halo, label text in secondary color #5C7A78.
+- Keep the existing bio text and quick-stats card content unchanged.
+- Preserve the existing SectionWrapper (id="about") GSAP scroll reveal.
+
+Run npm run build — must pass. Commit and merge to dev.
+```
+
+**Done When:**
+- [ ] Photo renders from /public/profile.jpg (placeholder/no-crash if file missing)
+- [ ] Glass photo card matches site glassmorphism
+- [ ] "Available for work" pill dot pulses
+- [ ] Existing bio + quick-stats card unchanged
+- [ ] Two-column desktop, stacked/centered mobile
+- [ ] Scroll reveal still fires
+- [ ] `npm run build` passes
+- [ ] Committed and merged to `dev`
+
+---
+
 ### P1.11 — Deployment
 **Branch:** `feat/deployment` (from `dev`)
 **Session Goal:** Deploy to Vercel. Connect Cloudflare DNS. Enable Analytics. Site live at ahmadsheraz.com.
+**⚠️ PREREQUISITE:** Run P1.11a + P1.11b first. Before deploying, confirm both features are merged into `dev` → `main`, AND add the real `profile.jpg` to `/public` (otherwise production ships a 404 image even though the build passes).
 
 **Session Prompt:**
 ```
@@ -1172,4 +1291,4 @@ Run npm run build before committing. Must pass with zero errors.
 
 ---
 
-*ahmadsheraz.com — Execution Plan · Ahmad Sheraz · June 2026 · 22 sub-phases · 3 phases*
+*ahmadsheraz.com — Execution Plan · Ahmad Sheraz · June 2026 · 24 sub-phases · 3 phases*
