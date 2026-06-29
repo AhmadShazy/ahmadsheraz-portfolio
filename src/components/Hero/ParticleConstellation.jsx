@@ -12,11 +12,13 @@ const RANGE_Z = 6;
 const DRIFT_SPEED = 0.45; // units/second
 const CONNECT_DIST = 3.2; // nodes closer than this get a line
 const CONNECT_DIST2 = CONNECT_DIST * CONNECT_DIST;
-const REPEL_RADIUS = 2.6; // cursor influence radius (screen plane)
-const REPEL_R2 = REPEL_RADIUS * REPEL_RADIUS;
-const REPEL_STRENGTH = 0.55;
+const REPEL_RADIUS = 3.0; // cursor influence radius (screen plane)
+const REPEL_STRENGTH = 0.08; // distance-scaled push factor (per 60fps frame)
 const ROTATION_SPEED = 0.04; // radians/second around Y
 const TEAL = "#0D9488";
+// Cursor parked here (far off-screen) until the first real mousemove, so no node
+// is affected before the user moves the mouse.
+const PARKED = 9999;
 // Worst-case segment count = C(NODE_COUNT, 2). The line buffer is sized for
 // this once and reused every frame (never reallocated).
 const MAX_SEGMENTS = (NODE_COUNT * (NODE_COUNT - 1)) / 2;
@@ -86,7 +88,9 @@ function rebuildLines(field) {
 }
 
 // Advance one animation step: drift + bounce + cursor repel, then rebuild lines.
-function stepField(field, group, pointer, viewport, dt) {
+// `mx`/`my` are the cursor position projected onto the z=0 plane in world units
+// (or PARKED when the mouse hasn't moved yet).
+function stepField(field, group, mx, my, dt) {
   const { positions, velocities, pointsGeometry } = field;
 
   // Slow Y rotation of the whole field (parallax)
@@ -94,10 +98,6 @@ function stepField(field, group, pointer, viewport, dt) {
   const theta = group.rotation.y;
   const cos = Math.cos(theta);
   const sin = Math.sin(theta);
-
-  // Cursor projected onto the z=0 plane in world units
-  const px = (pointer.x * viewport.width) / 2;
-  const py = (pointer.y * viewport.height) / 2;
 
   for (let i = 0; i < NODE_COUNT; i++) {
     const ix = i * 3;
@@ -115,18 +115,19 @@ function stepField(field, group, pointer, viewport, dt) {
     if (positions[iz] > RANGE_Z || positions[iz] < -RANGE_Z) velocities[iz] *= -1;
 
     // Repel from the cursor in screen space, accounting for the group's Y
-    // rotation: project the node to world XY, push away there, then convert the
-    // push back into local space (inverse Y rotation, push.z = 0).
-    const wx = positions[ix] * cos + positions[iz] * sin; // world X after rotation
-    const dx = wx - px;
-    const dy = positions[iy] - py;
-    const d2 = dx * dx + dy * dy;
-    if (d2 < REPEL_R2 && d2 > 1e-4) {
-      const d = Math.sqrt(d2);
-      const push = ((REPEL_RADIUS - d) / d) * REPEL_STRENGTH * dt * 60;
-      const pushWX = dx * push;
+    // rotation: project the node to world XY (world X = x·cos + z·sin), push it
+    // away there, then convert the push back into local space (inverse Y
+    // rotation, push.z = 0) so the repel aims at the cursor even as the field
+    // rotates.
+    const wx = positions[ix] * cos + positions[iz] * sin;
+    const dx = wx - mx;
+    const dy = positions[iy] - my;
+    const d = Math.hypot(dx, dy);
+    if (d < REPEL_RADIUS && d > 0.001) {
+      const force = (REPEL_RADIUS - d) * REPEL_STRENGTH * dt * 60;
+      const pushWX = (dx / d) * force; // world-X component of the push
       positions[ix] += pushWX * cos; // local x
-      positions[iy] += dy * push; // local y (unaffected by Y rotation)
+      positions[iy] += (dy / d) * force; // local y (Y rotation leaves Y alone)
       positions[iz] += pushWX * sin; // local z
     }
   }
@@ -140,7 +141,11 @@ function stepField(field, group, pointer, viewport, dt) {
 // or mutated during render — which keeps the imperative R3F loop off the React
 // render path. The <points>/<lineSegments> are created imperatively and added to
 // the group so the geometries never have to be read during render.
-function Constellation({ prefersReduced }) {
+//
+// The cursor comes from a window-level mouse ref (passed in) rather than
+// useThree().pointer: the canvas sits at -z-10 behind the hero content, which
+// intercepts pointer events, so the canvas's own pointer never updates.
+function Constellation({ prefersReduced, mouse }) {
   const groupRef = useRef(null);
   const fieldRef = useRef(null);
   const invalidate = useThree((state) => state.invalidate);
@@ -188,7 +193,15 @@ function Constellation({ prefersReduced }) {
     const field = fieldRef.current;
     if (!field) return;
     const dt = Math.min(delta, 0.05); // clamp to avoid jumps after a stall
-    stepField(field, groupRef.current, state.pointer, state.viewport, dt);
+
+    // Project the window-tracked cursor onto the z=0 plane (world units).
+    // Parked far away until the first real mousemove.
+    const m = mouse.current;
+    const vp = state.viewport;
+    const mx = m.active ? (m.x * vp.width) / 2 : PARKED;
+    const my = m.active ? (m.y * vp.height) / 2 : PARKED;
+
+    stepField(field, groupRef.current, mx, my, dt);
   });
 
   return <group ref={groupRef} />;
@@ -205,6 +218,22 @@ export default function ParticleConstellation({ active = true }) {
     []
   );
 
+  // Cursor tracked on `window` (not the canvas) so the repel works even with the
+  // hero content sitting on top of the -z-10 canvas. Stored in a ref so pointer
+  // moves never trigger React re-renders.
+  const mouse = useRef({ x: 0, y: 0, active: false });
+
+  useEffect(() => {
+    if (prefersReduced) return;
+    const handleMove = (e) => {
+      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = -((e.clientY / window.innerHeight) * 2 - 1);
+      mouse.current.active = true;
+    };
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, [prefersReduced]);
+
   // Freeze (single static frame) when reduced motion is requested or the hero is
   // off-screen; otherwise run continuously.
   const frameloop = prefersReduced || !active ? "demand" : "always";
@@ -218,7 +247,7 @@ export default function ParticleConstellation({ active = true }) {
         gl={{ alpha: true }}
         style={{ width: "100%", height: "100%" }}
       >
-        <Constellation prefersReduced={prefersReduced} />
+        <Constellation prefersReduced={prefersReduced} mouse={mouse} />
       </Canvas>
     </div>
   );
