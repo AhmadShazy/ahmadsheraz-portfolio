@@ -9,17 +9,18 @@ const BIO_PARAGRAPHS = [
   "Currently building AI-powered products that make businesses smarter. Always learning. Always shipping.",
 ];
 
-// Quick stats shown in the glass card (from CONTEXT.md)
+// Quick stats (from CONTEXT.md). Availability is intentionally NOT a stat here —
+// the "Available for work" pill under the photo is the single source of that.
+// The Fields stat spans the full width for a balanced 3-stat layout.
 const STATS = [
   { label: "Years Coding", value: "3+" },
   { label: "Projects Built", value: "8+" },
-  { label: "Fields of Expertise", value: "AI/ML · Data Eng · Backend" },
-  { label: "Available for Work", value: "Yes ✅" },
+  { label: "Fields of Expertise", value: "AI/ML · Data Eng · Backend", full: true },
 ];
 
-// About section: bio on the left; on the right a profile photo card stacked
-// above the quick-stats card (both stack below the bio on mobile). The whole
-// section fades + slides up on scroll via SectionWrapper.
+// About section: bio on the left; on the right ONE glass card combining a
+// profile photo (+ availability pill) and the quick stats, split by a teal
+// divider. Both columns stack on mobile. Reveals on scroll via SectionWrapper.
 export default function AboutSection() {
   return (
     <SectionWrapper id="about" className="px-6 py-20 lg:py-28">
@@ -52,43 +53,49 @@ export default function AboutSection() {
             </div>
           </div>
 
-          {/* Right column — profile photo card above the quick-stats card */}
-          <div className="space-y-6 lg:pl-8">
-            {/* Frosted-glass profile photo card */}
-            <GlassCard className="flex flex-col items-center p-6">
-              {/* 240x240 image well with a teal ring; tinted bg shows if the
-                  image file isn't present yet (no broken-icon, no crash) */}
+          {/* Right column — one unified profile + stats glass card */}
+          <div className="lg:pl-8">
+            <GlassCard className="p-6 sm:p-8">
+              {/* Section 1 — profile (centered) */}
+              <div className="flex flex-col items-center">
+                {/* 200x200 image well with a teal ring; tinted bg shows if the
+                    image file isn't present yet (no broken-icon, no crash) */}
+                <div
+                  className="relative h-[200px] w-[200px] overflow-hidden rounded-xl ring-2 ring-teal/40"
+                  style={{ background: "rgba(13, 148, 136, 0.06)" }}
+                >
+                  <Image
+                    src="/profile.jpg"
+                    alt="Ahmad Sheraz"
+                    fill
+                    sizes="200px"
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+
+                {/* The single "Available for work" indicator */}
+                <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/40 px-3 py-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
+                  </span>
+                  <span className="text-sm font-medium text-text-secondary">
+                    Available for work
+                  </span>
+                </div>
+              </div>
+
+              {/* Divider — thin teal line between the two sections */}
               <div
-                className="relative h-60 w-60 overflow-hidden rounded-xl ring-2 ring-teal/40"
-                style={{ background: "rgba(13, 148, 136, 0.06)" }}
-              >
-                <Image
-                  src="/profile.jpg"
-                  alt="Ahmad Sheraz"
-                  fill
-                  sizes="240px"
-                  className="object-cover"
-                  priority
-                />
-              </div>
+                aria-hidden="true"
+                className="my-6 h-px w-full bg-teal-border"
+              />
 
-              {/* "Available for work" status pill with a pulsing amber dot */}
-              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/40 px-3 py-1.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
-                </span>
-                <span className="text-sm font-medium text-text-secondary">
-                  Available for work
-                </span>
-              </div>
-            </GlassCard>
-
-            {/* Quick-stats glass card (content unchanged) */}
-            <GlassCard className="p-8">
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {/* Section 2 — quick stats (3, availability dropped) */}
+              <div className="grid grid-cols-2 gap-6">
                 {STATS.map((stat) => (
-                  <div key={stat.label}>
+                  <div key={stat.label} className={stat.full ? "col-span-2" : ""}>
                     <p className="text-2xl font-bold text-teal">{stat.value}</p>
                     <p className="mt-1 text-sm font-medium text-text-secondary">
                       {stat.label}
