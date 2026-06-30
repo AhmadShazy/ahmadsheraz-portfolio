@@ -56,33 +56,22 @@ export default function AboutSection() {
           {/* Right column — one unified profile + stats glass card */}
           <div className="lg:pl-8">
             <GlassCard className="p-6 sm:p-8">
-              {/* Section 1 — profile (centered) */}
+              {/* Section 1 — profile photo (centered) */}
               <div className="flex flex-col items-center">
-                {/* 200x200 image well with a teal ring; tinted bg shows if the
+                {/* 280x280 image well with a teal ring; tinted bg shows if the
                     image file isn't present yet (no broken-icon, no crash) */}
                 <div
-                  className="relative h-[200px] w-[200px] overflow-hidden rounded-xl ring-2 ring-teal/40"
+                  className="relative h-[280px] w-[280px] overflow-hidden rounded-xl ring-2 ring-teal/40"
                   style={{ background: "rgba(13, 148, 136, 0.06)" }}
                 >
                   <Image
                     src="/profile.jpg"
                     alt="Ahmad Sheraz"
                     fill
-                    sizes="200px"
+                    sizes="280px"
                     className="object-cover"
                     priority
                   />
-                </div>
-
-                {/* The single "Available for work" indicator */}
-                <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/40 px-3 py-1.5">
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
-                  </span>
-                  <span className="text-sm font-medium text-text-secondary">
-                    Available for work
-                  </span>
                 </div>
               </div>
 
@@ -102,6 +91,17 @@ export default function AboutSection() {
                     </p>
                   </div>
                 ))}
+              </div>
+
+              {/* The single "Available for work" indicator, below the stats */}
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/40 px-3 py-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
+                </span>
+                <span className="text-sm font-medium text-text-secondary">
+                  Available for work
+                </span>
               </div>
             </GlassCard>
           </div>
