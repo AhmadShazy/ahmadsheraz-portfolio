@@ -4,13 +4,16 @@ import SkillRow from "./SkillRow";
 // A category card built on the shared GlassCard so it inherits the site-wide
 // standard hover (gentle scale + solid-teal border). Renders an uppercase teal
 // title with a hairline underline, then the SkillRows in one or two columns.
+//
+// The card is a full-height flex column: its content stays top-anchored while
+// the card stretches to the tallest card in its grid row (equal bottom edges).
 export default function SkillCard({ title, skills, twoCol = false }) {
   // Two columns when explicitly requested or with 6+ skills
   const useTwoCol = twoCol || skills.length >= 6;
   const cols = useTwoCol ? 2 : 1;
 
   return (
-    <GlassCard className="p-[16px_18px]">
+    <GlassCard className="flex h-full flex-col p-[16px_18px]">
       <h3
         style={{
           fontSize: "10.5px",

@@ -163,17 +163,19 @@ export default function SkillsSection() {
           />
         </div>
 
-        {/* Auto-fit card grid */}
+        {/* Auto-fit card grid. align-items: stretch (the default) lets every
+            card in a row grow to the tallest one's height. */}
         <div
           ref={gridRef}
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
             gap: "12px",
+            alignItems: "stretch",
           }}
         >
           {SKILL_CARDS.map((card) => (
-            <div key={card.title} data-reveal-item>
+            <div key={card.title} data-reveal-item className="h-full">
               <SkillCard
                 title={card.title}
                 skills={card.skills}
