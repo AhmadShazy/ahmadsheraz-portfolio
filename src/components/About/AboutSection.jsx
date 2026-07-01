@@ -65,7 +65,7 @@ export default function AboutSection() {
                   style={{ background: "rgba(13, 148, 136, 0.06)" }}
                 >
                   <Image
-                    src="/profile.jpg?v=2"
+                    src="/profile-v2.jpg"
                     alt="Ahmad Sheraz"
                     fill
                     sizes="280px"
