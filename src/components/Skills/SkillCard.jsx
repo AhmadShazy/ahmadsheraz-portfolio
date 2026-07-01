@@ -5,7 +5,10 @@ import SkillRow from "./SkillRow";
 
 // A category glass card: uppercase teal title with a hairline underline, then a
 // list of SkillRows. Lays the rows out in two columns when twoCol is set or the
-// list has 6+ skills. Hover lifts the border to teal with a soft teal shadow.
+// list has 6+ skills. On hover the whole card gently enlarges (scale 1.02) and
+// elevates its teal glass shadow — matching the card hover in every other
+// section (GlassCard). The scale is a transform (GPU-composited, no layout
+// shift); the inner SkillRows nudge via padding, so the two effects don't fight.
 export default function SkillCard({ title, skills, twoCol = false }) {
   const [hovered, setHovered] = useState(false);
 
@@ -24,10 +27,11 @@ export default function SkillCard({ title, skills, twoCol = false }) {
           : "0.5px solid rgba(255,255,255,0.8)",
         borderRadius: "16px",
         padding: "16px 18px",
-        boxShadow: hovered ? "0 8px 28px rgba(13,148,136,0.1)" : "none",
+        boxShadow: hovered ? "0 16px 48px rgba(13,148,136,0.18)" : "none",
+        transform: hovered ? "scale(1.02)" : "scale(1)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
-        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+        transition: "all 0.3s ease",
       }}
     >
       <h3
