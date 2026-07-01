@@ -71,7 +71,10 @@ export default function ContactForm() {
         tabIndex={-1}
         className="outline-none"
       >
-        <GlassCard className="flex flex-col items-center p-8 text-center sm:p-10">
+        <GlassCard
+          hoverBorder={false}
+          className="flex flex-col items-center p-8 text-center sm:p-10"
+        >
           <CheckCircle2 size={48} className="text-teal" aria-hidden="true" />
           <p className="mt-4 text-lg font-semibold text-text-primary">
             Message received! I&apos;ll be in touch soon.
@@ -95,7 +98,7 @@ export default function ContactForm() {
       : "border-teal-border focus:border-teal";
 
   return (
-    <GlassCard className="p-6 sm:p-8">
+    <GlassCard hoverBorder={false} className="p-6 sm:p-8">
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
         {/* Full Name */}
         <div>
