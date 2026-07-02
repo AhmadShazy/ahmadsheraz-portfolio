@@ -16,7 +16,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
-        {children}
+        {/* Single continuous background gradient for the whole page — sections
+            are transparent so there are no seams between them. flex-1 keeps the
+            gradient covering the full viewport even on short pages. */}
+        <div className="page-gradient flex flex-1 flex-col">{children}</div>
         {/* Vercel Web Analytics (no-op locally; reports on the deployed site) */}
         <Analytics />
       </body>
