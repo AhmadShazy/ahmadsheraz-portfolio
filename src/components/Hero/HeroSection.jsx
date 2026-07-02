@@ -52,7 +52,10 @@ export default function HeroSection() {
     <section
       id="home"
       ref={sectionRef}
-      className="relative flex min-h-screen items-center overflow-hidden px-6 py-24"
+      // `isolate` creates a stacking context so the -z-10 constellation stays
+      // inside this section's paint order — without it, the negative-z canvas
+      // would paint BEHIND the page-gradient wrapper's background and vanish.
+      className="relative isolate flex min-h-screen items-center overflow-hidden px-6 py-24"
     >
       {/* Full-bleed background constellation */}
       <ParticleConstellation active={inView} />
