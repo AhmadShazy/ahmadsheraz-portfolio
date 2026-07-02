@@ -17,13 +17,25 @@
 
 html {
   scroll-behavior: smooth;
+  /* Canvas color for the overscroll/rubber-band region (outside the document
+     box, where .page-gradient can't reach). Flat ivory — matches the gradient
+     start so top bounces/pull-to-refresh don't flash white. A flat color on
+     html can't reintroduce the mobile gradient banding this fix removed. */
+  background-color: #FFFBF2;
 }
 
 body {
-  background: linear-gradient(135deg, #FFFBF2 0%, #F0FDFA 50%, #CCFBF1 100%);
-  min-height: 100vh;
   color: #0F1C2E;
   font-family: var(--font-inter), Arial, sans-serif;
+}
+
+/* One continuous page gradient painted by a single wrapper div in the root
+   layout. Sections stay fully transparent so this shows through with no seams
+   (painting the gradient on `body` caused visible banding between sections on
+   mobile). */
+.page-gradient {
+  background: linear-gradient(135deg, #FFFBF2, #F0FDFA, #CCFBF1);
+  min-height: 100%;
 }
 
 /* Reusable glass card utility */
