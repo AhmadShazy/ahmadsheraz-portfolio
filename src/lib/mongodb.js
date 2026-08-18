@@ -8,6 +8,13 @@ import mongoose from "mongoose";
 // globalThis and reused.
 const MONGODB_URI = process.env.MONGODB_URI;
 
+// Pin the database explicitly instead of trusting the URI to carry it.
+// A connection string without a `/<db>` path silently falls back to "test",
+// which connects and authenticates fine but returns zero rows — a 200-OK
+// failure that looks like "the site works but all content vanished". Setting
+// dbName removes that whole class of misconfiguration.
+const DB_NAME = process.env.MONGODB_DB || "portfolio";
+
 let cached = globalThis._mongoose;
 if (!cached) {
   cached = globalThis._mongoose = { conn: null, promise: null };
@@ -27,12 +34,16 @@ export default async function connectDB() {
   if (!cached.promise) {
     cached.promise = mongoose
       .connect(MONGODB_URI, {
+        dbName: DB_NAME,
         // Don't buffer queries forever if the DB is unreachable — fail fast so
         // API routes can return a real error instead of hanging.
         bufferCommands: false,
         serverSelectionTimeoutMS: 10000,
       })
-      .then((m) => m);
+      .then((m) => {
+        console.log(`[mongodb] connected to database "${m.connection.name}"`);
+        return m;
+      });
   }
 
   try {
