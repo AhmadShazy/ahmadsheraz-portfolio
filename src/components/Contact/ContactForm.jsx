@@ -72,7 +72,13 @@ export default function ContactForm() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Request failed");
+        // Surface the server's own wording when it explains something the
+        // visitor can act on (e.g. the rate limit); fall back otherwise.
+        setSendError(
+          data.error ||
+            "Something went wrong. Please email me directly at sheraz@ahmadsheraz.com"
+        );
+        return;
       }
 
       setSubmitted(true);

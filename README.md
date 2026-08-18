@@ -85,8 +85,8 @@ This project is built following the structured plan outlined in `EXECUTION_PLAN.
 
 * **Phase 0 — Foundation** (DONE): Setup Next.js, initialize Git branches, and integrate tailwind theme variables.
 * **Phase 1 — Frontend & Visuals** (DONE): Interactive client-side development featuring full responsive layout, GSAP entry transitions, Typed.js cycling text, and the Three.js particle constellation. 
-* **Phase 2 — Backend & Databases** (NEXT): Integrate MongoDB database schema, implement serverless Route Handlers for dynamic content delivery, and connect Resend email integration.
-* **Phase 3 — Admin Subsystem** (FUTURE): Build a completely isolated admin console deployed separately at `admin.ahmadsheraz.com` to control site details dynamically.
+* **Phase 2 — Backend & Databases** (DONE): MongoDB schema and connection layer, serverless Route Handlers for dynamic content delivery via ISR, and Resend email integration for the contact form.
+* **Phase 3 — Admin Subsystem** (FUTURE): Build a completely isolated admin console, deployed separately on its own private subdomain, to control site details dynamically.
 
 ---
 
