@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import GlassCard from "@/components/shared/GlassCard";
 import TealButton from "@/components/shared/TealButton";
 
@@ -21,6 +21,11 @@ export default function ContactForm() {
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState("");
+  // Honeypot: hidden from people, often filled by bots. Kept out of `values` so
+  // it never shows up in the visible fields.
+  const [website, setWebsite] = useState("");
   const successRef = useRef(null);
 
   // Move focus to the success message when it appears so keyboard users aren't
@@ -50,15 +55,35 @@ export default function ContactForm() {
     return e;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const found = validate();
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
-    // Fake submit — Phase 2 replaces this with a real API call
-    setSubmitted(true);
-    setValues(EMPTY);
+    setSending(true);
+    setSendError("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, website }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Request failed");
+      }
+
+      setSubmitted(true);
+      setValues(EMPTY);
+    } catch {
+      setSendError(
+        "Something went wrong. Please email me directly at sheraz@ahmadsheraz.com"
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   // Success state replaces the form
@@ -206,8 +231,40 @@ export default function ContactForm() {
           )}
         </div>
 
-        <TealButton type="submit" variant="primary" className="w-full">
-          Send Message
+        {/* Honeypot — visually hidden, never shown to real users */}
+        <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+          <label htmlFor="website">Leave this field empty</label>
+          <input
+            id="website"
+            name="website"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+          />
+        </div>
+
+        {/* Send failure (announced to assistive tech) */}
+        {sendError && (
+          <p role="alert" className="text-sm text-red-500">
+            {sendError}
+          </p>
+        )}
+
+        <TealButton
+          type="submit"
+          variant="primary"
+          className={`w-full ${sending ? "pointer-events-none opacity-70" : ""}`}
+        >
+          {sending ? (
+            <>
+              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+              Sending…
+            </>
+          ) : (
+            "Send Message"
+          )}
         </TealButton>
       </form>
     </GlassCard>
