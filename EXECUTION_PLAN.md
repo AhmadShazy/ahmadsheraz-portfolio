@@ -21,7 +21,7 @@
 | **P1.11a** | Replace Hero 3D with Particle Constellation | feat/hero-constellation | 🟢 DONE |
 | **P1.11b** | Add Profile Photo to About Section | feat/about-photo | 🟢 DONE |
 | **P1.11c** | Fix Mobile Background Gradient Seams | feat/gradient-fix | 🟢 DONE |
-| **P1.11** | Deployment (Vercel + Cloudflare DNS) | feat/deployment | 🟡 IN PROGRESS — repo deploy-ready (Analytics wired, `main` current); awaiting owner's Vercel import + DNS. See DEPLOYMENT.md. |
+| **P1.11** | Deployment (Vercel + Cloudflare DNS) | feat/deployment | 🟢 DONE — **LIVE at https://www.ahmadsheraz.com** (apex 308→www). SSL+HSTS active, Analytics + Speed Insights enabled. **PHASE 1 COMPLETE ✅** |
 | **P2.1** | MongoDB Setup + Mongoose Models | feat/mongodb-models | 🔴 TODO |
 | **P2.2** | API Routes (GET endpoints) | feat/api-routes | 🔴 TODO |
 | **P2.3** | Database Seed | feat/db-seed | 🔴 TODO |
