@@ -1,6 +1,21 @@
 # DEPLOYMENT.md — P1.11 (Vercel + DNS)
 
-Self-paced checklist. The repo is already deploy-ready:
+## ✅ COMPLETE — the site is LIVE
+
+**Canonical URL: https://www.ahmadsheraz.com** (apex `ahmadsheraz.com` 308-redirects to www).
+
+Verified: 200 OK from Vercel · valid SSL + HSTS (`max-age=63072000`) · `http://` → `https://`
+· all 8 sections render · latest code deployed · Vercel Analytics **and** Speed Insights enabled.
+DNS: Cloudflare nameservers → Vercel anycast IPs (`216.198.79.1`, `64.29.17.1`), unproxied.
+
+> Note: canonical ended up **www** (this doc's steps below assumed www→apex). Both are valid —
+> just use the www URL when sharing. To flip it, change the redirect in Vercel → Settings → Domains.
+
+Every push to `main` auto-deploys. The steps below are kept for reference/re-setup.
+
+---
+
+The repo is deploy-ready:
 - ✅ `<Analytics />` wired into `src/app/layout.js`
 - ✅ `npm run build` and `npm run lint` pass clean (0 errors, 0 warnings)
 - ✅ All Phase 1 work + the P1.11a/b/c refinements are merged to `main`
