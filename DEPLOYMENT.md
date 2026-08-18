@@ -2,8 +2,10 @@
 
 Self-paced checklist. The repo is already deploy-ready:
 - ✅ `<Analytics />` wired into `src/app/layout.js`
-- ✅ `npm run build` and `npm run lint` pass clean
-- ✅ Released on `main` (tag `v0.1.0`); Vercel will auto-redeploy on every push to `main`
+- ✅ `npm run build` and `npm run lint` pass clean (0 errors, 0 warnings)
+- ✅ All Phase 1 work + the P1.11a/b/c refinements are merged to `main`
+  (tags `v0.1.0`, `v1.0.0-frontend`); Vercel auto-redeploys on every push to `main`
+- ✅ Profile image committed at `public/profile-v2.jpg` — no missing assets
 
 DNS choice: **Vercel nameservers** (Vercel manages DNS + SSL automatically — simplest path).
 

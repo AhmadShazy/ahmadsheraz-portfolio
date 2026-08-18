@@ -18,9 +18,10 @@
 | **P1.8** | Hire Me Section | feat/hire-me | 🟢 DONE |
 | **P1.9** | Contact Section | feat/contact | 🟢 DONE |
 | **P1.10** | Full Assembly + Polish + Responsive | feat/polish-assembly | 🟢 DONE |
-| **P1.11a** | Replace Hero 3D with Particle Constellation | feat/hero-constellation | 🔴 TODO |
-| **P1.11b** | Add Profile Photo to About Section | feat/about-photo | 🔴 TODO |
-| **P1.11** | Deployment (Vercel + Cloudflare DNS) | feat/deployment | 🟡 IN PROGRESS — repo deploy-ready (Analytics + v0.1.0); awaiting owner's Vercel import + DNS (see DEPLOYMENT.md). RUN P1.11a + P1.11b FIRST. |
+| **P1.11a** | Replace Hero 3D with Particle Constellation | feat/hero-constellation | 🟢 DONE |
+| **P1.11b** | Add Profile Photo to About Section | feat/about-photo | 🟢 DONE |
+| **P1.11c** | Fix Mobile Background Gradient Seams | feat/gradient-fix | 🟢 DONE |
+| **P1.11** | Deployment (Vercel + Cloudflare DNS) | feat/deployment | 🟡 IN PROGRESS — repo deploy-ready (Analytics wired, `main` current); awaiting owner's Vercel import + DNS. See DEPLOYMENT.md. |
 | **P2.1** | MongoDB Setup + Mongoose Models | feat/mongodb-models | 🔴 TODO |
 | **P2.2** | API Routes (GET endpoints) | feat/api-routes | 🔴 TODO |
 | **P2.3** | Database Seed | feat/db-seed | 🔴 TODO |
@@ -33,6 +34,25 @@
 | **P3.5** | Admin Deploy to admin.ahmadsheraz.com | feat/admin-deploy | 🔴 TODO |
 
 **Update status to 🟡 IN PROGRESS or 🟢 DONE after each session.**
+
+---
+
+### 🔧 Refinements (unplanned passes, all 🟢 DONE and merged to `main`)
+
+Cross-cutting fixes made after their parent sub-phase shipped. Recorded here so
+the tracker reflects the real state of the codebase.
+
+| Refinement | Branch | What changed |
+|---|---|---|
+| Skills redesign (Option D) | feat/skills-redesign | Rebuilt `src/components/Skills/` — SkillRow + category SkillCard + auto-fit grid. Replaced the original 3D-tilt cards. |
+| Hero constellation cursor fix | feat/hero-constellation | Repel now tracks the mouse on `window`; `useThree().pointer` never updated behind the `-z-10` canvas. |
+| Skill group hover | feat/skills-hover | Category cards enlarge + elevate on hover, matching other sections. |
+| Card hover standard | feat/card-hover-standard | **GlassCard is now the single source of truth for card hover** (resting faint-teal border → solid teal + scale 1.02 on hover). All 22 cards inherit it; `hoverBorder={false}` opts out (Contact form). Do NOT re-add per-card hover CSS. |
+| Skills symmetry | feat/skills-symmetry | Equal-height cards per grid row via stretch + flex-column (content top-anchored, no global fixed height). |
+| About card merge + photo sizing | feat/about-photo | Photo + stats merged into ONE glass card with a teal divider; 280×280 photo; single "Available for work" pill below the stats. |
+
+**Owner-deferred (do NOT action without explicit instruction):**
+- **WCAG AA contrast** — the locked palette is below AA for small text (teal `#0D9488` ≈ 3.3–3.7:1, white-on-teal buttons ≈ 3:1, `text-secondary` ≈ 4.1–4.5:1). Decision (2026-06-22): leave colors unchanged; revisit in a dedicated pass **after the theme is finalized post-deployment**.
 
 ---
 
