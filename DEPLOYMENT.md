@@ -15,6 +15,30 @@ Every push to `main` auto-deploys. The steps below are kept for reference/re-set
 
 ---
 
+## ⚠️ Deploy safety rule (learned the hard way)
+
+`main` auto-deploys to production. Since Phase 2, the page reads MongoDB at
+build/ISR time, so **a missing or wrong env var breaks the live site.**
+
+Vercel **snapshots environment variables at build time** — changing a variable
+does nothing until the next deployment.
+
+**Before merging `dev` → `main` after any env-var change:**
+
+1. Push to `dev` first — it builds a preview at
+   `ahmadsheraz-portfolio-git-dev-ahmadshazys-projects.vercel.app`.
+2. Hit `/api/projects` on that preview. Expect `200` with real data, not a 500.
+3. Only then merge to `main`.
+
+If production does break, the fix is `git revert -m 1 <merge-sha>` and push —
+that restored the site in ~10 seconds when it happened.
+
+Diagnose with the real cause, not guesswork: Vercel runtime logs surface the
+actual error (e.g. `bad auth : authentication failed` = wrong credentials in the
+Vercel copy of `MONGODB_URI`, as opposed to a timeout = IP allowlist).
+
+---
+
 The repo is deploy-ready:
 - ✅ `<Analytics />` wired into `src/app/layout.js`
 - ✅ `npm run build` and `npm run lint` pass clean (0 errors, 0 warnings)
