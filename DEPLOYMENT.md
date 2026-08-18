@@ -119,3 +119,4 @@ sections render, and that the Analytics script loaded, then mark **P1.11 done / 
 - [ ] SSL active (https)
 - [ ] Vercel Analytics enabled
 - [ ] All sections work on the live site
+
