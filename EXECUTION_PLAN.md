@@ -26,7 +26,7 @@
 | **P2.2** | API Routes (GET endpoints) | feat/mongodb-models | 🟢 DONE — shared `src/lib/data.js` read layer + 5 GET routes |
 | **P2.3** | Database Seed | feat/mongodb-models | 🟢 DONE — `npm run seed`; 7 projects / 37 skills / 1 edu / 1 exp / 2 social. Preserves `messages` |
 | **P2.4** | Wire Frontend to API | feat/mongodb-models | 🟢 DONE — 4 sections are async server components reading the data layer; **ISR (`revalidate = 3600`)** keeps `/` static so visitors never wait on the DB |
-| **P2.5** | Contact Form + Resend Email | feat/email-contact | 🟢 DONE — email live in production + messages now persisted to MongoDB (saved *before* sending, so a delivery failure never loses a message). **PHASE 2 COMPLETE ✅** *(pending `MONGODB_URI` in Vercel before `main` deploy)* |
+| **P2.5** | Contact Form + Resend Email | feat/email-contact | 🟢 DONE — email live in production + messages persisted to MongoDB (saved *before* sending, so a delivery failure never loses a message). **PHASE 2 COMPLETE & DEPLOYED ✅** — live site renders all content from MongoDB via ISR |
 | **P3.1** | Admin App Setup + JWT Auth | feat/admin-setup-auth | 🔴 TODO |
 | **P3.2** | Admin Projects CRUD | feat/admin-projects | 🔴 TODO |
 | **P3.3** | Admin Skills + Experience + Education CRUD | feat/admin-content | 🔴 TODO |
