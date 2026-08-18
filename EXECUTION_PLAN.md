@@ -26,7 +26,7 @@
 | **P2.2** | API Routes (GET endpoints) | feat/api-routes | 🔴 TODO |
 | **P2.3** | Database Seed | feat/db-seed | 🔴 TODO |
 | **P2.4** | Wire Frontend to API | feat/frontend-api | 🔴 TODO |
-| **P2.5** | Contact Form + Resend Email | feat/email-contact | 🔴 TODO |
+| **P2.5** | Contact Form + Resend Email | feat/email-contact | 🟡 PARTIAL — email sending DONE + verified (on `dev`; needs `RESEND_API_KEY` in Vercel before merging to `main`). Saving messages to MongoDB still pending P2.1. |
 | **P3.1** | Admin App Setup + JWT Auth | feat/admin-setup-auth | 🔴 TODO |
 | **P3.2** | Admin Projects CRUD | feat/admin-projects | 🔴 TODO |
 | **P3.3** | Admin Skills + Experience + Education CRUD | feat/admin-content | 🔴 TODO |
