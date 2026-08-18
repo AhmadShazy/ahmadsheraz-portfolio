@@ -1,6 +1,4 @@
 import { Resend } from "resend";
-import connectDB from "@/lib/mongodb";
-import Message from "@/lib/models/Message";
 
 // Where contact-form messages are delivered, and who they appear to come from.
 // The sending domain must be verified in Resend. CONTACT_FROM_EMAIL lets the
@@ -46,6 +44,16 @@ function validate({ name, email, subject, message }) {
 }
 
 export async function POST(request) {
+  // Fail loudly in logs, softly to the visitor, if the key is missing (e.g. the
+  // env var wasn't added in the Vercel dashboard).
+  if (!process.env.RESEND_API_KEY) {
+    console.error("[contact] RESEND_API_KEY is not set");
+    return Response.json(
+      { error: "Email service is not configured." },
+      { status: 500 }
+    );
+  }
+
   let body;
   try {
     body = await request.json();
@@ -69,18 +77,7 @@ export async function POST(request) {
     return Response.json({ error: errors.join(" ") }, { status: 400 });
   }
 
-  // Persist FIRST, so a message is never lost if email delivery fails. This is
-  // also what the Phase 3 admin inbox reads. Best-effort: a database outage
-  // must not stop the email from going out.
-  let savedToDb = false;
-  try {
-    await connectDB();
-    await Message.create({ name, email, subject, message });
-    savedToDb = true;
-  } catch (err) {
-    console.error("[contact] could not save message to DB:", err.message);
-  }
-
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const safe = {
     name: escapeHtml(name),
     email: escapeHtml(email),
@@ -88,17 +85,6 @@ export async function POST(request) {
     // Preserve the sender's line breaks in the HTML email
     message: escapeHtml(message).replace(/\n/g, "<br>"),
   };
-
-  // Missing key is a misconfiguration, not a reason to lose the message — it's
-  // already in the DB by this point, so log loudly and report based on that.
-  if (!process.env.RESEND_API_KEY) {
-    console.error("[contact] RESEND_API_KEY is not set — email skipped");
-    return savedToDb
-      ? Response.json({ ok: true }, { status: 200 })
-      : Response.json({ error: "Could not send message." }, { status: 500 });
-  }
-
-  const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
     // 1) Notify Ahmad. reply_to is the sender, so hitting Reply just works.
@@ -122,16 +108,9 @@ export async function POST(request) {
         </div>`,
     });
 
-    // If the email bounced but the message is safely in the DB, it genuinely
-    // was received — report success and let the logs flag the delivery problem.
     if (notify.error) {
       console.error("[contact] notification failed:", notify.error);
-      if (!savedToDb) {
-        return Response.json(
-          { error: "Could not send message." },
-          { status: 500 }
-        );
-      }
+      return Response.json({ error: "Could not send message." }, { status: 500 });
     }
 
     // 2) Auto-reply to the sender. Best-effort: if this fails the message still
@@ -168,9 +147,6 @@ export async function POST(request) {
     return Response.json({ ok: true }, { status: 200 });
   } catch (err) {
     console.error("[contact] unexpected error:", err);
-    // Same rule: if it's already stored, the visitor's message wasn't lost.
-    return savedToDb
-      ? Response.json({ ok: true }, { status: 200 })
-      : Response.json({ error: "Could not send message." }, { status: 500 });
+    return Response.json({ error: "Could not send message." }, { status: 500 });
   }
 }

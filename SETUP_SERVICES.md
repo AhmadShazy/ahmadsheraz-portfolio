@@ -103,22 +103,16 @@ is untouched. This is also Resend's own recommendation.
      database user's password is the only thing protecting it. Use a long generated
      password, never commit it, and give the user only the roles it needs.
 
-5. **Connect → Drivers → Node.js** → **copy the string Atlas shows you — don't retype it
-   from this guide.** Atlas gives every cluster a unique 5-character hash in the hostname
-   (e.g. `portfolio-cluster.a1b2c.mongodb.net`). Any example below writes that hash as
-   `HASH`; if `HASH` (or `xxxxx`) survives into your `.env.local`, DNS can't resolve the
-   host and you get `querySrv ESERVFAIL`.
-
-   Shape only — yours will differ:
+5. **Connect → Drivers → Node.js** → copy the connection string. It looks like:
    ```
-   mongodb+srv://portfolio_app:<password>@portfolio-cluster.HASH.mongodb.net/?retryWrites=true&w=majority
+   mongodb+srv://portfolio_app:<password>@portfolio-cluster.xxxxx.mongodb.net/?retryWrites=true&w=majority
    ```
 
-6. **Then make exactly two edits to the copied string:**
+6. **Fix it up before saving:**
    - Replace `<password>` with the real password (URL-encoded if needed).
    - Insert the database name **before the `?`** — otherwise Mongoose writes to `test`:
    ```
-   mongodb+srv://portfolio_app:PASSWORD@portfolio-cluster.HASH.mongodb.net/portfolio?retryWrites=true&w=majority
+   mongodb+srv://portfolio_app:PASSWORD@portfolio-cluster.xxxxx.mongodb.net/portfolio?retryWrites=true&w=majority
    ```
 
 7. Put it in `.env.local`:
@@ -128,9 +122,7 @@ is untouched. This is also Resend's own recommendation.
    …and add the same variable in **Vercel → Settings → Environment Variables**.
 
 ### Gotchas
-- **Placeholder hostname** (`HASH` / `xxxxx` left in) → `querySrv ESERVFAIL`. Always copy
-  the host from Atlas itself.
-- `<password>` left literally in the string is the other classic failure.
+- `<password>` left literally in the string is the #1 connection failure.
 - Missing database name → data silently lands in `test`.
 - M0 clusters **auto-pause after ~60 days idle**; the first request after that is slow.
 
