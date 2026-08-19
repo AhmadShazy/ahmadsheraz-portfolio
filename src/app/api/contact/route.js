@@ -35,11 +35,26 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+// Salt for the IP hash. A hardcoded default would be worthless — it ships in a
+// public repo, and the IPv4 space is small enough to brute-force a known-salt
+// hash straight back to an address. Prefer an explicit IP_HASH_SALT; otherwise
+// derive one from MONGODB_URI, which is already secret, always present, and
+// stable across serverless instances (so counts still add up).
+function getSalt() {
+  if (process.env.IP_HASH_SALT) return process.env.IP_HASH_SALT;
+  const seed = process.env.MONGODB_URI;
+  if (!seed) return null;
+  return crypto.createHash("sha256").update(seed).digest("hex");
+}
+
 // Only ever store a salted hash — the raw IP is never persisted or logged.
+// Returns null when no salt is derivable, in which case we skip storing
+// anything identifying rather than writing a trivially reversible digest.
 function hashIp(request) {
+  const salt = getSalt();
+  if (!salt) return null;
   const forwarded = request.headers.get("x-forwarded-for") || "";
   const ip = forwarded.split(",")[0].trim() || "unknown";
-  const salt = process.env.IP_HASH_SALT || "ahmadsheraz-portfolio";
   return crypto
     .createHash("sha256")
     .update(`${salt}:${ip}`)
@@ -102,6 +117,10 @@ export async function POST(request) {
   try {
     await connectDB();
     dbUp = true;
+    // Without a hash there's nothing to count by. Never query { ipHash: null } —
+    // pre-existing messages carry null, so that would throttle every visitor
+    // based on unrelated history.
+    if (!ipHash) throw new Error("no ip hash available — skipping rate limit");
     const now = Date.now();
     const [lastHour, lastDay] = await Promise.all([
       Message.countDocuments({
