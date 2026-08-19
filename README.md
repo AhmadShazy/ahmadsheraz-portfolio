@@ -1,6 +1,6 @@
 # 👤 ahmadsheraz.com — Personal Portfolio & AI/ML Platform
 
-[![Next.js](https://img.shields.io/badge/Next.js-15+-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![React 19](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-R3F-black?style=for-the-badge&logo=threedotjs&logoColor=white)](https://threejs.org/)
@@ -31,7 +31,7 @@ It transitions away from typical developer web aesthetics, implementing a light-
 
 | Layer | Technology | Description |
 |---|---|---|
-| **Framework** | Next.js 15+ (App Router) | High-performance React framework for server/client component optimization. |
+| **Framework** | Next.js 16 (App Router) | High-performance React framework for server/client component optimization. |
 | **Language** | JavaScript (ES6+) | Keep codebase clean, readable, and focused. |
 | **Styling** | Tailwind CSS v4 | Uses the new v4 CSS-first configuration (all tokens live inside `src/app/globals.css`). |
 | **3D Rendering** | React Three Fiber & `@react-three/drei` | Drives interactive 3D particle constellations and web canvases. |
@@ -94,7 +94,8 @@ This project is built following the structured plan outlined in `EXECUTION_PLAN.
 
 ### Prerequisites
 
-* Node.js (v18.x or v20.x recommended)
+* Node.js **v20.9 or newer** (enforced via `engines` in `package.json` — the seed
+  script uses `node --env-file`, which older releases don't support)
 * Git installed
 
 ### Installation
@@ -111,13 +112,19 @@ This project is built following the structured plan outlined in `EXECUTION_PLAN.
    ```
 
 3. Set up the Environment Variables:
-   Create a `.env.local` file in the root directory and append the following configurations (add actual credentials during Phase 2):
-   ```env
-   MONGODB_URI=your_mongodb_atlas_connection_string
-   RESEND_API_KEY=your_resend_api_key
-   JWT_SECRET=your_long_random_jwt_secret
-   ADMIN_PASSWORD_HASH=bcrypt_hash_of_your_admin_password
-   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   Copy `.env.example` to `.env.local` and fill in the values — that file is the
+   single source of truth for what the code actually reads, and documents which
+   variables are required versus optional:
+   ```bash
+   cp .env.example .env.local
+   ```
+   `MONGODB_URI` is the only required one; without it the page renders empty.
+   (`JWT_SECRET` and `ADMIN_PASSWORD_HASH` belong to the separate Phase 3 admin
+   app, not to this repo.)
+
+4. Seed the database with the content from `CONTEXT.md`:
+   ```bash
+   npm run seed
    ```
 
 ### Running Locally
