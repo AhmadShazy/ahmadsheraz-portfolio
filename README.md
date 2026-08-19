@@ -175,4 +175,4 @@ Use specific prefixes for all commits to maintain an easily readable history:
 The application is deploy-ready and optimized for the **Vercel Platform**:
 * Auto-deploys on every commit pushed to the `main` branch.
 * Web analytics are enabled via `@vercel/analytics` inside `src/app/layout.js`.
-* DNS is managed via Cloudflare pointing directly to Vercel apex servers. See [DEPLOYMENT.md](file:///c:/Users/ahmad/Desktop/PortFolio/ahmadsheraz-portfolio/DEPLOYMENT.md) for more details.
+* DNS is managed via Cloudflare pointing directly to Vercel apex servers. See [DEPLOYMENT.md](./DEPLOYMENT.md) for more details.
