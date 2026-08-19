@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import Typed from "typed.js";
 import TealButton from "@/components/shared/TealButton";
 
-// Typewriter roles, cycled in order (from CONTEXT.md)
+// Typewriter roles, cycled in order. Hardcoded until P3.0 moves them into the
+// SiteContent document.
 const ROLES = [
   "AI/ML Engineer",
   "Data Engineer",
@@ -13,7 +14,8 @@ const ROLES = [
   "Problem Solver",
 ];
 
-// Social links (from CONTEXT.md)
+// Social links. Duplicated in ContactSection.jsx; a SocialLink model already
+// exists in the database but nothing reads it yet — wired up in P3.0.
 const GITHUB_URL = "https://github.com/AhmadShazy";
 const LINKEDIN_URL = "https://linkedin.com/in/ahmadshazy";
 
