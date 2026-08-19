@@ -40,7 +40,7 @@
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 14+ — App Router |
+| Framework | Next.js 16 — App Router (requires Node >= 20.9) |
 | Language | JavaScript (no TypeScript) |
 | Styling | Tailwind CSS v4 + custom glass CSS in globals.css |
 | 3D Engine | Three.js + React Three Fiber (`@react-three/fiber`) |
@@ -116,7 +116,7 @@ min-height: 100vh;
 
 | Section | Level | What |
 |---|---|---|
-| Hero | 🔥 FULL 3D | Rotating globe + mouse-reactive particles + interactive 3D geometric object |
+| Hero | 🔥 FULL 3D | ONE `ParticleConstellation` canvas — 80 drifting nodes, lines between near neighbours, cursor repel, slow Y parallax. (The original globe + separate particles + geometric object were consolidated in P1.11a.) |
 | Navbar | 🪟 FROSTED GLASS | Sticky, blur backdrop, no 3D |
 | Skills | ⚡ MODERATE | 3D tilt effect on glass cards (hover only, CSS transform) |
 | Projects | ⚡ MODERATE | 3D glass card depth / flip effect on hover |
@@ -304,9 +304,7 @@ ahmadsheraz-portfolio/
 │   │   ├── Hero/
 │   │   │   ├── HeroSection.jsx
 │   │   │   ├── HeroContent.jsx      ← Text, typewriter, CTAs
-│   │   │   ├── Globe3D.jsx          ← R3F rotating globe
-│   │   │   ├── Particles3D.jsx      ← Mouse-reactive particles
-│   │   │   └── GeometricObject.jsx  ← Interactive 3D shape
+│   │   │   └── ParticleConstellation.jsx ← the single R3F canvas (P1.11a)
 │   │   ├── About/
 │   │   │   └── AboutSection.jsx
 │   │   ├── Skills/
@@ -351,11 +349,16 @@ ahmadsheraz-portfolio/
 
 ```env
 # .env.local — NEVER COMMIT THIS FILE
-MONGODB_URI=your_mongodb_atlas_connection_string
-RESEND_API_KEY=your_resend_api_key
-JWT_SECRET=your_long_random_jwt_secret
-ADMIN_PASSWORD_HASH=bcrypt_hash_of_your_admin_password
-NEXT_PUBLIC_SITE_URL=https://ahmadsheraz.com
+# See .env.example — it is the single source of truth for what the code reads.
+# Portfolio app (all must ALSO be set in the Vercel dashboard):
+MONGODB_URI=your_mongodb_atlas_connection_string   # required
+MONGODB_DB=portfolio                               # optional, default "portfolio"
+RESEND_API_KEY=your_resend_api_key                 # optional, email skipped if unset
+CONTACT_FROM_EMAIL=...                             # optional, must be Resend-verified
+IP_HASH_SALT=...                                   # optional, derived from MONGODB_URI if unset
+
+# Phase 3 admin app ONLY — belongs in that repo, not this one:
+# JWT_SECRET, ADMIN_PASSWORD_HASH
 ```
 
 ---

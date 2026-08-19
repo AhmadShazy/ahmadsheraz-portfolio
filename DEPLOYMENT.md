@@ -58,8 +58,15 @@ DNS choice: **Vercel nameservers** (Vercel manages DNS + SSL automatically — s
 2. Go to **https://vercel.com/new** → **Import** `AhmadShazy/ahmadsheraz-portfolio`.
 3. Framework auto-detects **Next.js** — keep all defaults
    (Root `./` · Build `next build` · Output `.next`).
-4. **Environment Variables: leave empty.** Phase 1 has zero backend calls; none are
-   needed yet (Mongo/Resend/JWT come in Phase 2).
+4. **Environment Variables — required since Phase 2.** Add these (Production,
+   Preview and Development), copying values from `.env.local`:
+   - `MONGODB_URI` — **required**; the build reads MongoDB, so a missing or wrong
+     value fails the deploy or ships an empty site
+   - `RESEND_API_KEY` — contact form emails (messages still persist without it)
+   - `MONGODB_DB`, `CONTACT_FROM_EMAIL`, `IP_HASH_SALT` — optional, sensible
+     defaults in code
+
+   See `.env.example` for the full list and what each one does.
 5. **Deploy.** Open the `*.vercel.app` URL and confirm the site renders + scrolls.
 
 > From now on, every push to `main` auto-deploys.
