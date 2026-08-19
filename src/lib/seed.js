@@ -1,10 +1,15 @@
-// Seeds MongoDB with the portfolio content from CONTEXT.md.
+// Seeds MongoDB with the portfolio's content. This file is the code-side source
+// of truth for that content (CONTEXT.md was retired 2026-08-20; it survives only
+// in docs/ARCHIVE-PHASES-0-2.md).
 //
 // Run with:  npm run seed
 //
 // Destructive by design: every collection it owns is cleared first so the DB
-// always ends up an exact mirror of CONTEXT.md. It never touches `messages` —
+// always ends up an exact mirror of this file. It never touches `messages` —
 // those are real contact submissions and must survive a reseed.
+//
+// ⚠️ Once the Phase 3 admin panel is live, running this DESTROYS every edit
+// made through it. Treat it as first-time setup and disaster recovery only.
 import connectDB from "./mongodb.js";
 import Project from "./models/Project.js";
 import Skill from "./models/Skill.js";

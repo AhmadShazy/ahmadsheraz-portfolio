@@ -22,7 +22,7 @@ It transitions away from typical developer web aesthetics, implementing a light-
 * **Frosted Glass (.glass-card)**: Reusable components leveraging backdrop filters (`blur(24px)`) and subtle borders to look premium on all screens.
 * **3D Strategy**:
   * **Hero Section**: Custom Client-side React Three Fiber mouse-reactive particle constellation background.
-  * **Interactive Depth**: Smooth 3D tilt effects and hover transitions across cards (Skills, Projects, Education).
+  * **Interactive Depth**: A single shared hover treatment across every glass card — faint teal border at rest, solid teal with a subtle lift on hover.
   * **Reduced Motion Support**: Fully respects OS-level `prefers-reduced-motion` settings by bypassing animations and offering optimized static layout fallbacks.
 
 ---
@@ -40,42 +40,32 @@ It transitions away from typical developer web aesthetics, implementing a light-
 | **Database** | MongoDB Atlas & Mongoose | Persists dynamic contents (Projects, Skills, Socials, and Messages). |
 | **APIs** | Built-in Next.js Route Handlers | Decoupled serverless backend endpoints (`/api/*`). |
 | **Email Delivery** | Resend | Powers reliable, fast email delivery for the contact form. |
-| **Authentication** | JWT (`jsonwebtoken`) & `bcryptjs` | Secures the administrative dashboard access. |
+| **Authentication** | `jose` JWT & `bcryptjs` | Secures the administrative dashboard — lives in a separate private repository. |
 
 ---
 
 ## 📁 Project Architecture
 
 ```text
-ahmadsheraz-portfolio/
-├── CLAUDE.md                # Development instructions, context, rules & scripts
-├── CONTEXT.md               # Hardcoded portfolio data & copy (Single Source of Truth)
-├── EXECUTION_PLAN.md        # Comprehensive multi-phase implementation roadmap
-├── DEPLOYMENT.md            # Hosting checklist (Vercel + Cloudflare DNS)
-├── package.json
-├── src/
-│   ├── app/
-│   │   ├── layout.js        # Global layout, Inter font, analytics, theme
-│   │   ├── page.js          # Assembly point for all frontend sections
-│   │   ├── globals.css      # CSS styling tokens & custom glass classes
-│   │   └── api/             # Phase 2: Dynamic API endpoints
-│   ├── components/
-│   │   ├── shared/          # Reusable Navbar, Footer, GlassCard, SectionWrapper
-│   │   ├── Hero/            # Hero section, content, particle animation Canvas
-│   │   ├── About/           # Bio description & quick stats
-│   │   ├── Skills/          # Category-grouped interactive skill chips
-│   │   ├── Projects/        # Featured list of AI, ML, & Data Eng projects
-│   │   ├── Education/       # Academic timeline & coursework
-│   │   ├── Experience/      # Industry/Project role highlights
-│   │   ├── HireMe/          # Service offerings and Call-To-Action (CTA)
-│   │   └── Contact/         # Interactive frosted glass message submission form
-│   ├── lib/
-│   │   └── mongodb.js       # Database client connection configuration
-│   ├── hooks/
-│   │   └── useScrollReveal.js # Reusable GSAP ScrollTrigger hook
-│   └── styles/
-│       └── glass.css        # Visual adjustments & glass overlays
+src/app/          Root layout, the single ISR-cached page, global styles, and the
+                  /api route handlers (contact, projects, skills, education,
+                  experience, social).
+src/components/   One folder per section (Hero, About, Skills, Projects,
+                  Education, Experience, HireMe, Contact) plus shared/ for the
+                  glass card, navbar, footer, scroll wrapper and button.
+src/lib/          mongodb.js (cached connection, pinned database name),
+                  data.js (the shared read layer every server component calls),
+                  seed.js, and the Mongoose models.
+src/hooks/        useReducedMotion, useStaggerReveal.
 ```
+
+Server components call `src/lib/data.js` directly rather than fetching the app's
+own API routes — one fewer round-trip, and it cannot deadlock during static
+generation. The API routes exist for external consumers.
+
+Planning and operational docs: [CLAUDE.md](./CLAUDE.md) (conventions),
+[EXECUTION_PLAN.md](./EXECUTION_PLAN.md) (roadmap),
+[docs/RUNBOOK.md](./docs/RUNBOOK.md) (deploy and operations).
 
 ---
 
@@ -86,7 +76,7 @@ This project is built following the structured plan outlined in `EXECUTION_PLAN.
 * **Phase 0 — Foundation** (DONE): Setup Next.js, initialize Git branches, and integrate tailwind theme variables.
 * **Phase 1 — Frontend & Visuals** (DONE): Interactive client-side development featuring full responsive layout, GSAP entry transitions, Typed.js cycling text, and the Three.js particle constellation. 
 * **Phase 2 — Backend & Databases** (DONE): MongoDB schema and connection layer, serverless Route Handlers for dynamic content delivery via ISR, and Resend email integration for the contact form.
-* **Phase 3 — Admin Subsystem** (FUTURE): Build a completely isolated admin console, deployed separately on its own private subdomain, to control site details dynamically.
+* **Phase 3 — Admin Subsystem** (IN PROGRESS): A completely isolated admin console in its own private repository, deployed separately, for managing site content.
 
 ---
 
@@ -122,7 +112,7 @@ This project is built following the structured plan outlined in `EXECUTION_PLAN.
    (`JWT_SECRET` and `ADMIN_PASSWORD_HASH` belong to the separate Phase 3 admin
    app, not to this repo.)
 
-4. Seed the database with the content from `CONTEXT.md`:
+4. Seed the database with the content defined in `src/lib/seed.js`:
    ```bash
    npm run seed
    ```
@@ -147,39 +137,9 @@ This project is built following the structured plan outlined in `EXECUTION_PLAN.
 
 ---
 
-## 🌿 Git & Version Control Policy
-
-This repository adheres to a strict industry-standard branching and merge policy, structured as follows:
-
-### Branch Structure
-* `main`: Stable, fully tested, deploy-ready production branch.
-* `dev`: Integration branch where feature branches are merged.
-* `feat/<feature-name>`: Dedicated feature development branches spawned from `dev`.
-
-### Code Workflow
-1. Switch to dev and pull updates: `git checkout dev && git pull origin dev`
-2. Create a feature branch: `git checkout -b feat/your-feature-name`
-3. Commit progress incrementally using conventional commits.
-4. Merge back to dev upon completion:
-   ```bash
-   git checkout dev
-   git merge feat/your-feature-name
-   git branch -d feat/your-feature-name
-   git push origin dev
-   ```
-
-### Commit Formatting Guidelines
-Use specific prefixes for all commits to maintain an easily readable history:
-* `feat: ...` for new features (e.g., `feat: add constellation canvas`)
-* `fix: ...` for bug fixes (e.g., `fix: mobile navbar tap target`)
-* `style: ...` for layout or style alterations
-* `chore: ...` for configurations or dependency changes
-
----
-
 ## 🌐 Deployment
 
 The application is deploy-ready and optimized for the **Vercel Platform**:
 * Auto-deploys on every commit pushed to the `main` branch.
 * Web analytics are enabled via `@vercel/analytics` inside `src/app/layout.js`.
-* DNS is managed via Cloudflare pointing directly to Vercel apex servers. See [DEPLOYMENT.md](./DEPLOYMENT.md) for more details.
+* DNS is managed via Cloudflare, pointing at Vercel. Canonical URL is `https://www.ahmadsheraz.com` (the apex 308-redirects to it). See [docs/RUNBOOK.md](./docs/RUNBOOK.md).
