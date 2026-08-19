@@ -51,6 +51,29 @@ the tracker reflects the real state of the codebase.
 | Skills symmetry | feat/skills-symmetry | Equal-height cards per grid row via stretch + flex-column (content top-anchored, no global fixed height). |
 | About card merge + photo sizing | feat/about-photo | Photo + stats merged into ONE glass card with a teal divider; 280×280 photo; single "Available for work" pill below the stats. |
 
+### 🔍 Full project audit (2026-08-19) — all findings remediated
+
+A multi-dimension audit (security, backend, frontend, hygiene) plus hands-on
+runtime testing of production. **No functional bugs were found in the app.** Fixed:
+
+| Severity | Issue | Fix |
+|---|---|---|
+| 🔴 | `/api/contact` could send caller-composed mail to any address from the verified domain | Auto-reply now fires only after the notification succeeds and carries no caller-authored prose |
+| 🔴 | No rate limiting — ~50 requests drained the 100/day Resend quota | 3/hour + 8/day per IP, counted in Mongo so the cap survives cold starts; fails open if the DB is down |
+| 🟠 | Non-string JSON threw an uncaught TypeError → HTTP 500 | Inputs coerced via `asText()` → clean 400 |
+| 🟠 | `admin.ahmadsheraz.com` published in the public repo README | Removed (violated CLAUDE.md's own rule) |
+| 🟠 | Hardcoded default IP-hash salt in public source (CWE-760) | Salt from `IP_HASH_SALT`, else derived from `MONGODB_URI`; never a committed constant |
+| 🟠 | `npm run seed` silently needed Node ≥ 22.7 | `"type": "module"` + `engines: node >=20.9` |
+| 🟡 | Env-var docs listed a different five vars than the code reads | `.env.example` is now the single source of truth |
+| 🟡 | CLAUDE.md/DEPLOYMENT.md/README described a stale hero, stack and env setup | Corrected |
+
+**Known, not yet fixed** (deliberate — raise before acting):
+- `SkillsGrid` uses `import * as Icons from "lucide-react"`, which defeats tree-shaking and ships ~809 KB of icons. Fix = explicit icon map.
+- A DB error during ISR revalidation caches "Failed to load" for up to an hour.
+- `/api/social`, the `SocialLink` model and `getSocialLinks()` are dead — Hero and Contact hardcode the URLs, so Phase 3 edits there won't show.
+- `seed.js` wipes then inserts (non-atomic).
+- CONTEXT.md skill names drifted from the shipped Option-D names.
+
 **Owner-deferred (do NOT action without explicit instruction):**
 - **WCAG AA contrast** — the locked palette is below AA for small text (teal `#0D9488` ≈ 3.3–3.7:1, white-on-teal buttons ≈ 3:1, `text-secondary` ≈ 4.1–4.5:1). Decision (2026-06-22): leave colors unchanged; revisit in a dedicated pass **after the theme is finalized post-deployment**.
 
