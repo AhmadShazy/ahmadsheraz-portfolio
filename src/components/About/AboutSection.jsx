@@ -2,14 +2,15 @@ import Image from "next/image";
 import SectionWrapper from "@/components/shared/SectionWrapper";
 import GlassCard from "@/components/shared/GlassCard";
 
-// Bio copy — verbatim from CONTEXT.md (single source of truth)
+// Bio copy. Still hardcoded — moves to the SiteContent document in P3.0 so
+// the admin panel can edit it.
 const BIO_PARAGRAPHS = [
   "I'm Ahmad Sheraz — a Computer Science student with a deep focus on AI/ML, Data Engineering, and Backend Engineering. I don't just write code — I engineer systems that think, scale, and solve real problems.",
   "From building multimodal AI systems that detect human emotion in real time, to designing distributed data pipelines that handle high-velocity IoT streams, I approach every project with the mindset of a systems engineer — not just a developer.",
   "Currently building AI-powered products that make businesses smarter. Always learning. Always shipping.",
 ];
 
-// Quick stats (from CONTEXT.md). Availability is intentionally NOT a stat here —
+// Quick stats. Also hardcoded until P3.0. Availability is intentionally NOT a stat here —
 // the "Available for work" pill under the photo is the single source of that.
 // The Fields stat spans the full width for a balanced 3-stat layout.
 const STATS = [

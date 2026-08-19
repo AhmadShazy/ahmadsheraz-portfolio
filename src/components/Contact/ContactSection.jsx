@@ -5,7 +5,8 @@ import { Mail, Copy, Check } from "lucide-react";
 import SectionWrapper from "@/components/shared/SectionWrapper";
 import ContactForm from "./ContactForm";
 
-// Contact details (from CONTEXT.md)
+// Contact details. The social URLs duplicate HeroContent.jsx and are hardcoded
+// even though a SocialLink model exists — both get wired to the DB in P3.0.
 const EMAIL = "sheraz@ahmadsheraz.com";
 const GITHUB_URL = "https://github.com/AhmadShazy";
 const LINKEDIN_URL = "https://linkedin.com/in/ahmadshazy";

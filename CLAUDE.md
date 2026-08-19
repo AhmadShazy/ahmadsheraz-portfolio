@@ -1,408 +1,202 @@
-# CLAUDE.md — ahmadsheraz.com Portfolio
-# READ THIS ENTIRE FILE BEFORE DOING ANYTHING ELSE. EVERY SESSION. NO EXCEPTIONS.
+# CLAUDE.md — ahmadsheraz.com
+# Living rules and locked decisions. Read fully, every session.
+
+**Status: Phases 0–2 shipped. Live at https://www.ahmadsheraz.com. Phase 3 (admin panel) is next.**
+
+| Need | File |
+|---|---|
+| What to build next | [EXECUTION_PLAN.md](EXECUTION_PLAN.md) |
+| How to build Phase 3 | [docs/PHASE3_GUIDE.md](docs/PHASE3_GUIDE.md) |
+| Deploying, DNS, Atlas, Resend | [docs/RUNBOOK.md](docs/RUNBOOK.md) |
+| Env vars | `.env.example` — the single source of truth |
+| Phase 0–2 history | [docs/ARCHIVE-PHASES-0-2.md](docs/ARCHIVE-PHASES-0-2.md) *(don't read by default)* |
 
 ---
 
-## 👤 Identity & Goal
+## 👤 Identity
 
-- **Owner:** Ahmad Sheraz — goes by Shezi
-- **Project:** Personal portfolio website — full-stack web application
-- **Domain:** ahmadsheraz.com (DNS on Cloudflare)
-- **Email:** sheraz@ahmadsheraz.com
-- **GitHub:** github.com/AhmadShazy
-- **Dev Environment:** Windows · 16GB RAM · Node.js installed · Antigravity IDE
-- **Career Direction:** AI/ML Engineering · Data Engineering · Backend Engineering
-- **Goal:** A statement piece that says *"I am a serious engineer — not a bootcamp grad."*
-- **Positioning:** AI engineer who ships full-stack products. NOT a web developer.
+- **Owner:** Ahmad Sheraz — goes by Shezi · sheraz@ahmadsheraz.com · github.com/AhmadShazy
+- **Positioning:** AI engineer who ships full-stack products. **Not** a web developer.
+- **Goal:** a statement piece that says *"I am a serious engineer — not a bootcamp grad."*
+- **Dev environment:** Windows · PowerShell · Node ≥ 20.9
 
 ---
 
-## ⚠️ CRITICAL TECHNICAL FACTS — READ BEFORE TOUCHING ANY FILE
+## ⚠️ Facts that bite if you forget them
 
-1. **Tailwind v4 is installed** — `create-next-app` latest uses Tailwind v4 by default.
-   - There is **NO** `tailwind.config.js` file in this project.
-   - All custom colors, tokens, and utilities go inside the `@theme` block in `src/app/globals.css`.
-   - Never create a `tailwind.config.js`. Never import from it. It does not exist.
-
-2. **`create-next-app` cannot scaffold into a non-empty folder.**
-   - If the project folder already has files (planning docs), scaffold into a sibling temp folder first, then move files across, then delete temp.
-   - Exact approach: `npx create-next-app@latest ../portfolio-temp ...` → copy scaffold → delete temp.
-
-3. **App Router only** — never use Pages Router. All routes live in `src/app/`.
-
-4. **JavaScript only** — no TypeScript. Keep it clean and readable.
-
-5. **`src/` directory is used** — all source code lives under `src/`.
+1. **Tailwind v4 — there is NO `tailwind.config.js`.** All tokens live in the
+   `@theme` block in `src/app/globals.css`. Never create one.
+2. **JavaScript only.** No TypeScript.
+3. **App Router only**, everything under `src/`.
+4. **The database is pinned in code.** `src/lib/mongodb.js` sets
+   `dbName: "portfolio"`. A URI without a `/db` path would otherwise connect to
+   `test` and return zero rows with a 200 — a failure that looks like working.
+5. **The page is ISR-cached for an hour** (`revalidate = 3600` in
+   `src/app/page.js`). Content changes are not instant. Never tell the owner an
+   edit will "appear immediately".
+6. **`npm run seed` wipes and reinserts** all content collections (it preserves
+   `messages`). Once the admin panel is live, it destroys real edits.
+7. **`GlassCard` is the only place card hover is defined.** Resting faint-teal
+   border → solid teal + `scale(1.02)`. Do **not** re-add per-card hover CSS;
+   `hoverBorder={false}` opts out.
 
 ---
 
-## 🛠️ Tech Stack — LOCKED. NEVER CHANGE WITHOUT EXPLICIT INSTRUCTION.
+## 🛠️ Stack — locked
+
+### Portfolio (this repo)
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 16 — App Router (requires Node >= 20.9) |
-| Language | JavaScript (no TypeScript) |
-| Styling | Tailwind CSS v4 + custom glass CSS in globals.css |
-| 3D Engine | Three.js + React Three Fiber (`@react-three/fiber`) |
-| 3D Helpers | `@react-three/drei` |
-| Animations | GSAP + ScrollTrigger |
-| Typewriter | Typed.js |
+| Framework | Next.js 16 — App Router (Node ≥ 20.9) |
+| Language | JavaScript |
+| Styling | Tailwind CSS v4 + glass utilities in `globals.css` |
+| 3D | Three.js + React Three Fiber + drei |
+| Animation | GSAP + ScrollTrigger · Typed.js |
 | Icons | Lucide React |
-| Database | MongoDB Atlas (free tier) via Mongoose |
-| API Layer | Next.js built-in App Router API routes (`src/app/api/`) |
-| Email | Resend (preferred over EmailJS) |
-| Admin Auth | JWT (`jsonwebtoken`) + `bcryptjs` |
-| Hosting | Vercel (portfolio) + Vercel (admin — separate app) |
-| DNS | Cloudflare → Vercel |
-| Analytics | Vercel Analytics |
+| Data | MongoDB Atlas via Mongoose |
+| Email | Resend |
+| Hosting | Vercel (auto-deploys `main`) · DNS on Cloudflare |
+| Analytics | Vercel Analytics + Speed Insights |
 
-### All npm packages (install once in Phase 0 — never reinstall mid-phase)
-```bash
-npm install three @react-three/fiber @react-three/drei gsap typed.js lucide-react resend mongoose jsonwebtoken bcryptjs
-npm install @vercel/analytics
-```
+### Admin app (Phase 3 — separate private repo, NOT this one)
+
+`mongoose` · **`jose`** (not `jsonwebtoken` — it cannot run in the proxy layer)
+· `bcryptjs`. Details in [docs/PHASE3_GUIDE.md](docs/PHASE3_GUIDE.md).
 
 ---
 
-## 🎨 Design System — LOCKED. EXACT VALUES. DO NOT DEVIATE.
+## 🎨 Design system — locked, exact values
 
-### Colors (go in `@theme` block inside `globals.css`)
 ```css
---color-bg-start: #FFFBF2;
---color-bg-mid: #F0FDFA;
---color-bg-end: #CCFBF1;
---color-teal: #0D9488;
---color-teal-light: #14B8A6;
---color-gold: #F59E0B;
---color-text-primary: #0F1C2E;
---color-text-secondary: #5C7A78;
---color-glass-bg: rgba(255, 255, 255, 0.42);
---color-glass-border: rgba(255, 255, 255, 0.75);
---color-teal-border: rgba(13, 148, 136, 0.22);
---shadow-card: 0 8px 32px rgba(13, 148, 136, 0.08);
+--color-bg-start: #FFFBF2;   --color-bg-mid: #F0FDFA;   --color-bg-end: #CCFBF1;
+--color-teal: #0D9488;       --color-teal-light: #14B8A6;  --color-gold: #F59E0B;
+--color-text-primary: #0F1C2E;   --color-text-secondary: #5C7A78;
+--color-glass-bg: rgba(255,255,255,0.42);
+--color-glass-border: rgba(255,255,255,0.75);
+--color-teal-border: rgba(13,148,136,0.22);
+--shadow-card: 0 8px 32px rgba(13,148,136,0.08);
 ```
 
-### Background Gradient (applied to root layout)
-```css
-background: linear-gradient(135deg, #FFFBF2 0%, #F0FDFA 50%, #CCFBF1 100%);
-min-height: 100vh;
-```
+- **Background:** `linear-gradient(135deg,#FFFBF2 0%,#F0FDFA 50%,#CCFBF1 100%)`,
+  applied once on the root layout — sections are transparent so there are no seams.
+- **Glass card:** `rgba(255,255,255,0.42)` · `backdrop-filter: blur(24px)` ·
+  `1px solid rgba(255,255,255,0.75)` · `border-radius: 16px`.
+- **Font:** Inter via `next/font/google`.
+- **Theme:** light warm glassmorphism on ivory. Premium and masculine — a luxury
+  brand site, not a typical dev portfolio. **Not dark.**
 
-### Glass Card Pattern (reused everywhere via `.glass-card` utility)
-```css
-.glass-card {
-  background: rgba(255, 255, 255, 0.42);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow: 0 8px 32px rgba(13, 148, 136, 0.08);
-  border-radius: 16px;
-}
-```
-
-### Typography
-- **Font:** Inter (loaded via `next/font/google` in `layout.js`)
-- **Headings:** bold, `#0F1C2E`
-- **Body:** regular, `#5C7A78`
-- **Accent text:** `#0D9488` (teal) or `#F59E0B` (gold)
-
-### Theme
-- **Light warm** — NOT dark. Light glassmorphism on warm ivory background.
-- **Premium, masculine** — comparable to luxury brand websites, not typical dev portfolios.
+**Accessibility flag (owner-deferred):** this palette is below WCAG AA for small
+text. The owner decided on 2026-06-22 to leave it until the theme is finalized
+post-deployment. Do not "fix" it unprompted.
 
 ---
 
-## 🧊 3D Strategy — STRICT RULES
+## 🧊 3D strategy
 
-| Section | Level | What |
-|---|---|---|
-| Hero | 🔥 FULL 3D | ONE `ParticleConstellation` canvas — 80 drifting nodes, lines between near neighbours, cursor repel, slow Y parallax. (The original globe + separate particles + geometric object were consolidated in P1.11a.) |
-| Navbar | 🪟 FROSTED GLASS | Sticky, blur backdrop, no 3D |
-| Skills | ⚡ MODERATE | 3D tilt effect on glass cards (hover only, CSS transform) |
-| Projects | ⚡ MODERATE | 3D glass card depth / flip effect on hover |
-| Hire Me | ⚡ MODERATE | Glassmorphism glow, animated CTA |
-| About | 🌊 SUBTLE | GSAP scroll reveal fade-in only |
-| Education | 🌊 SUBTLE | Timeline fade-in on scroll |
-| Experience | 🌊 SUBTLE | Scroll reveal only |
-| Contact | 🪟 GLASS ONLY | Frosted glass form card — zero 3D |
-| Plain text | ❌ ZERO | Never add 3D to text-heavy areas |
+| Section | What |
+|---|---|
+| Hero | **One** R3F canvas — `ParticleConstellation`: 80 drifting nodes, lines between near neighbours, cursor repel, slow Y parallax |
+| Skills / Projects / Hire Me | CSS transforms on hover only — no 3D |
+| About / Education / Experience | GSAP scroll reveal only |
+| Contact, and anything text-heavy | Zero 3D |
 
-**Core rule: 3D enhances — it never competes with content.**
-**Mobile rule: 3D canvas must be lazy-loaded or simplified on small screens for performance.**
+**3D enhances — it never competes with content.** Lazy-load or simplify on
+mobile: dynamic import with `ssr: false` for every R3F canvas.
 
 ---
 
-## 📄 Portfolio Sections (Final Order)
+## 💼 Hire Me positioning — never get this wrong
 
-| # | Section | Status |
-|---|---|---|
-| 1 | Hero | Active |
-| 2 | About | Active |
-| 3 | Skills | Active |
-| 4 | Projects | Active |
-| 5 | Education Timeline | Active |
-| 6 | Experience | Active |
-| 7 | Hire Me | Active |
-| 8 | Contact | Active |
-| — | Blog | Deferred — add when regularly writing |
-| — | GitHub Stats | Deferred — add when contribution graph is strong |
-| — | Certifications | Deferred — add when CS certs are earned (AWS, GCP etc.) |
+**Headline:** *"Let's Build Something Intelligent"*
 
----
-
-## 💼 Hire Me — Positioning (CRITICAL — Never Get This Wrong)
-
-**Headline:** `"Let's Build Something Intelligent"`
-
-| ❌ Never Say | ✅ Always Say |
+| ❌ Never say | ✅ Always say |
 |---|---|
 | "I build websites for small businesses" | "I build AI-powered web applications and smart management systems" |
 | Web developer for hire | AI engineer who ships full-stack products |
-| I can make you a website | I can make your business intelligent |
+| "I can make you a website" | "I can make your business intelligent" |
 
-- **Services:** AI-powered websites · Smart management systems for SMBs
-- **Target client:** Small businesses wanting to automate and digitize
-- **Star proof:** JobCraft AI — live deployed product
-- **AI is the STAR. Web dev is the vehicle.**
+Star proof: **JobCraft AI** — live, deployed. **AI is the star; web dev is the vehicle.**
 
 ---
 
-## 🏆 Projects — Final Rankings (LOCKED — Display in This Exact Order)
+## 🏆 Projects — locked display order
 
-| Rank | Project | Rating | Stack |
-|---|---|---|---|
-| 1 ⭐ | JobCraft AI | 9.4/10 | React 19 + FastAPI + MongoDB + Gemini 5-model fallback + JWT + Docker |
-| 2 | Emotion Detection System (FYP) | 9.1/10 | Python + Whisper + SpeechBrain Wav2Vec2 + OpenFace |
-| 3 | Smart Grid Energy Monitoring | 8.7/10 | MQTT + Kafka + PySpark + InfluxDB + Grafana |
-| 4 | Visual Cryptography Engine | 7.8/10 | Python + XOR OTP + custom image encryption |
-| 5 | Face Recognition App | 7.3/10 | Python + OpenCV + Haar Cascade + LBPH + custom dataset |
-| 6 | Income Predictor | 6.2/10 | Python + scikit-learn + PCA (show only if needed for padding) |
-| 7 | Fullstack E-Commerce Node.js | 5.9/10 | Node.js + EJS + Tailwind (show only if needed for padding) |
-| 8 | Bike Buying Analysis | ❌ SKIP | Do NOT include — ever |
+Ranked by `rank` in MongoDB, ascending:
 
----
+1. ⭐ **JobCraft AI** (9.4) · 2. Emotion Detection FYP (9.1) · 3. Smart Grid
+Energy Monitoring (8.7) · 4. Visual Cryptography Engine (7.8) · 5. Face
+Recognition App (7.3) · 6. Income Predictor (6.2) · 7. Fullstack E-Commerce (5.9)
 
-## 🔐 Admin Panel — Rules (MANDATORY)
+**Bike Buying Analysis — never include.**
 
-- **URL:** `admin.ahmadsheraz.com`
-- **NEVER mention, link, or reference this URL in any public-facing code, component, or content.**
-- **NEVER import admin code into the portfolio app.**
-- Built as a **completely separate Next.js app** (Phase 3).
-- Deployed separately on Vercel under a subdomain.
-- Auth: JWT + bcrypt + password stored in environment variable.
-- Database: Same MongoDB Atlas cluster as portfolio.
-- What admin controls: Hero · Skills · Projects · Experience · Education · Hire Me · Contact Inbox · Social Links.
+Content lives in the database. `src/lib/seed.js` is the code copy used to
+populate it; edit both together until the admin panel exists.
 
 ---
 
-## 🌿 Git & Version Control — MANDATORY. INDUSTRY STANDARD. ALWAYS FOLLOW.
+## 🔐 Admin panel rules — MANDATORY
 
-### Branch Structure
-```
-main     ← production only. Stable, tested, deployed code.
-dev      ← integration. All tested features merge here first.
-feat/x   ← one feature = one branch. Always created from dev.
-```
-
-### Rules
-1. **Never commit directly to `main` or `dev`.**
-2. Always create `feat/` branch from `dev` before starting any work.
-3. Feature complete + tested → merge `feat/` into `dev`, delete `feat/` branch.
-4. `dev` stable → merge into `main`, push, tag release if significant.
-5. Commit early, commit often — every meaningful working state gets a commit.
-
-### Exact Workflow Per Sub-Phase
-```bash
-# Start of every sub-phase
-git checkout dev
-git pull origin dev
-git checkout -b feat/[branch-name]
-
-# During work
-git add .
-git commit -m "feat: [description]"
-
-# Sub-phase complete
-git checkout dev
-git merge feat/[branch-name]
-git branch -d feat/[branch-name]
-git push origin dev
-
-# When dev is stable (end of full phase)
-git checkout main
-git merge dev
-git push origin main
-```
-
-### Commit Message Format
-```
-feat: add rotating 3D globe to hero section
-feat: add glassmorphism navbar with smooth scroll
-fix: fix particle z-index on mobile safari
-style: adjust teal card shadow opacity
-chore: install gsap and typed.js dependencies
-```
-
-### Branch Names by Sub-Phase
-```
-feat/project-foundation      ← Phase 0
-feat/shared-components       ← P1.1
-feat/hero-layout             ← P1.2
-feat/hero-3d                 ← P1.3
-feat/about                   ← P1.4
-feat/skills                  ← P1.5
-feat/projects                ← P1.6
-feat/education-experience    ← P1.7
-feat/hire-me                 ← P1.8
-feat/contact                 ← P1.9
-feat/polish-assembly         ← P1.10
-feat/deployment              ← P1.11
-feat/mongodb-models          ← P2.1
-feat/api-routes              ← P2.2
-feat/db-seed                 ← P2.3
-feat/frontend-api            ← P2.4
-feat/email-contact           ← P2.5
-feat/admin-setup-auth        ← P3.1
-feat/admin-projects          ← P3.2
-feat/admin-content           ← P3.3
-feat/admin-inbox-social      ← P3.4
-feat/admin-deploy            ← P3.5
-```
+- Built as a **completely separate Next.js app in a separate private repo**,
+  deployed to its own Vercel project and subdomain.
+- **Never mention, link or reference the admin URL in any public-facing code,
+  comment, string, README, `robots.txt` or sitemap.** Listing it to "exclude" it
+  publishes it.
+- **Never import admin code into the portfolio app.** No auth libraries, no JWT
+  handling, no login routes in this repo.
+- Phase 3 *does* add public-safe things here (a revalidation hook, DB-backed
+  content) — see P3.0. Nothing admin-specific.
+- Auth: `jose` JWT in an httpOnly + Secure + SameSite=Lax cookie, bcrypt hash in
+  an env var, rate-limited login.
 
 ---
 
-## 📁 Project Folder Structure
+## 📏 Coding rules
 
-```
-ahmadsheraz-portfolio/
-├── CLAUDE.md                    ← YOU ARE HERE — read every session
-├── EXECUTION_PLAN.md            ← Phased build roadmap — check current step
-├── CONTEXT.md                   ← All real portfolio content data
-├── .env.local                   ← Secrets — NEVER commit
-├── .gitignore
-├── package.json
-├── next.config.mjs
-├── src/
-│   ├── app/
-│   │   ├── layout.js            ← Root layout (Inter font, background gradient)
-│   │   ├── page.js              ← Home page (assembles all sections)
-│   │   ├── globals.css          ← Design system tokens + glass utilities
-│   │   └── api/                 ← API routes (Phase 2 only)
-│   │       ├── projects/route.js
-│   │       ├── skills/route.js
-│   │       ├── experience/route.js
-│   │       ├── education/route.js
-│   │       ├── contact/route.js
-│   │       └── social/route.js
-│   ├── components/
-│   │   ├── shared/
-│   │   │   ├── GlassCard.jsx
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── Footer.jsx
-│   │   │   ├── SectionWrapper.jsx   ← GSAP scroll reveal wrapper
-│   │   │   └── TealButton.jsx
-│   │   ├── Hero/
-│   │   │   ├── HeroSection.jsx
-│   │   │   ├── HeroContent.jsx      ← Text, typewriter, CTAs
-│   │   │   └── ParticleConstellation.jsx ← the single R3F canvas (P1.11a)
-│   │   ├── About/
-│   │   │   └── AboutSection.jsx
-│   │   ├── Skills/
-│   │   │   ├── SkillsSection.jsx
-│   │   │   └── SkillCard.jsx
-│   │   ├── Projects/
-│   │   │   ├── ProjectsSection.jsx
-│   │   │   └── ProjectCard.jsx
-│   │   ├── Education/
-│   │   │   ├── EducationSection.jsx
-│   │   │   └── EducationCard.jsx
-│   │   ├── Experience/
-│   │   │   ├── ExperienceSection.jsx
-│   │   │   └── ExperienceCard.jsx
-│   │   ├── HireMe/
-│   │   │   └── HireMeSection.jsx
-│   │   └── Contact/
-│   │       ├── ContactSection.jsx
-│   │       └── ContactForm.jsx
-│   ├── lib/
-│   │   ├── mongodb.js               ← MongoDB connection (Phase 2)
-│   │   ├── models/                  ← Mongoose models (Phase 2)
-│   │   │   ├── Project.js
-│   │   │   ├── Skill.js
-│   │   │   ├── Experience.js
-│   │   │   ├── Education.js
-│   │   │   ├── Message.js
-│   │   │   └── SocialLink.js
-│   │   └── seed.js                  ← DB seed script (Phase 2)
-│   ├── hooks/
-│   │   ├── useScrollReveal.js       ← GSAP scroll hook
-│   │   └── useMousePosition.js      ← Mouse tracking for 3D particles
-│   └── styles/
-│       └── glass.css                ← Additional glass effect overrides
-└── public/
-    └── (static assets, images)
-```
+1. **Complete files only** — never partial snippets.
+2. **Mobile first** — responsive classes on every element.
+3. **Comment the important logic**, in plain language. Explain *why*, not *what*.
+4. **Readable over clever.**
+5. **No hardcoded secrets.** Env vars only, and never paste one into chat.
+6. **No ambient sound.** Ever.
+7. **Validate on the server** — never trust the client, even a trusted admin.
+8. **Commit at every working state**, don't batch.
 
 ---
 
-## ⚙️ Environment Variables
+## 🌿 Git — mandatory
 
-```env
-# .env.local — NEVER COMMIT THIS FILE
-# See .env.example — it is the single source of truth for what the code reads.
-# Portfolio app (all must ALSO be set in the Vercel dashboard):
-MONGODB_URI=your_mongodb_atlas_connection_string   # required
-MONGODB_DB=portfolio                               # optional, default "portfolio"
-RESEND_API_KEY=your_resend_api_key                 # optional, email skipped if unset
-CONTACT_FROM_EMAIL=...                             # optional, must be Resend-verified
-IP_HASH_SALT=...                                   # optional, derived from MONGODB_URI if unset
-
-# Phase 3 admin app ONLY — belongs in that repo, not this one:
-# JWT_SECRET, ADMIN_PASSWORD_HASH
 ```
+main     ← production. Auto-deploys to Vercel.
+dev      ← integration.
+feat/x   ← one feature per branch, always from dev.
+```
+
+1. **Never commit directly to `main` or `dev`.** Branch, then merge with `--no-ff`.
+2. On Windows use **`git commit -F <file>`** — PowerShell mangles multi-line `-m`.
+3. `npm run build` **and** `npm run lint` must pass before any commit.
+4. **Verify the `dev` preview before every merge to `main`.** Hit `/api/projects`
+   on the preview URL and expect 7 projects. An unverified merge once took
+   production down — see [docs/RUNBOOK.md](docs/RUNBOOK.md) §2.
+5. Rollback is `git revert -m 1 <merge-sha>`.
+
+**Commit prefixes:** `feat:` · `fix:` · `style:` · `chore:` · `docs:`
 
 ---
 
-## 📏 Coding Rules — ALWAYS FOLLOW
+## 📁 Where things live
 
-1. **Complete files only** — never write partial snippets. Always write the entire file.
-2. **Mobile first** — Tailwind responsive classes on every element. Mobile is not an afterthought.
-3. **Comments on all important logic** — clean, beginner-friendly comments.
-4. **Readable over clever** — no fancy one-liners. Write for clarity.
-5. **No hardcoded secrets** — always use environment variables.
-6. **Admin URL never in public code** — not in comments, not in strings, nowhere.
-7. **No ambient sound** — ever. Not even as an option.
-8. **Phase 1 rule** — ZERO backend calls. All data hardcoded from CONTEXT.md. Get visuals perfect first.
-9. **Lazy load 3D on mobile** — use dynamic import + `ssr: false` for all R3F canvases.
-10. **Commit after every working state** — don't batch up too much before committing.
+```
+src/app/          layout.js · page.js (ISR) · globals.css · api/{contact,projects,skills,education,experience,social}
+src/components/   shared/ (GlassCard, Navbar, Footer, SectionWrapper, TealButton)
+                  Hero/ About/ Skills/ Projects/ Education/ Experience/ HireMe/ Contact/
+src/lib/          mongodb.js (connection + pinned dbName) · data.js (shared read layer) · seed.js · models/
+src/hooks/        useReducedMotion.js · useStaggerReveal.js
+```
+
+**Server components call `src/lib/data.js` directly — never `fetch("/api/…")`.**
+That would add a round-trip and can deadlock during static generation.
 
 ---
 
-## 🚀 How to Start Every Claude Code Session
-
-**Step 1 — Paste this at the start of every session:**
-```
-Read CLAUDE.md, EXECUTION_PLAN.md, and CONTEXT.md carefully.
-Current phase: [PHASE NUMBER]
-Current sub-phase: [SUB-PHASE e.g. P1.3]
-Task: [EXACT TASK DESCRIPTION]
-Last session completed: [WHAT WAS DONE]
-```
-
-**Step 2 — Claude Code checks the current branch before doing anything:**
-```bash
-git branch          # confirms you are on correct feat/ branch
-git status          # confirms clean working tree
-```
-
-**Step 3 — Claude Code builds the sub-phase deliverables.**
-
-**Step 4 — After completing sub-phase, Claude Code:**
-1. Runs `npm run build` to verify zero errors
-2. Commits to `feat/` branch
-3. Merges to `dev`
-4. Confirms done
-
----
-
-*ahmadsheraz.com — CLAUDE.md · Last updated June 2026 · Decisions locked ✓*
+*ahmadsheraz.com · last revised 2026-08-20 · decisions locked ✓*

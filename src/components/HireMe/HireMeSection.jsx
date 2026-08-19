@@ -7,7 +7,7 @@ import GlassCard from "@/components/shared/GlassCard";
 import TealButton from "@/components/shared/TealButton";
 import useStaggerReveal from "@/hooks/useStaggerReveal";
 
-// Services — AI-first positioning (CONTEXT.md / CLAUDE.md). AI is the star;
+// Services — AI-first positioning (see CLAUDE.md). Hardcoded until P3.0. AI is the star;
 // web dev is the vehicle. Gold icon + teal title per card.
 const SERVICES = [
   {
