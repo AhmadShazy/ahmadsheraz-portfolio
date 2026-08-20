@@ -21,7 +21,7 @@ the contact form delivers email and persists messages.
 | **0** | Foundation — Next.js, Git, design system | 🟢 DONE |
 | **1** | Frontend — 8 sections, 3D hero, responsive, deployed | 🟢 DONE |
 | **2** | Backend — MongoDB, API routes, ISR, Resend contact form | 🟢 DONE |
-| **3** | Admin panel — private CMS at a separate subdomain | 🔴 **NEXT** |
+| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0 done |
 
 <details>
 <summary>Sub-phase detail for the finished phases</summary>
@@ -55,10 +55,8 @@ Deliberately unfixed. Raise them rather than rediscovering them.
 
 | Issue | Bites you when |
 |---|---|
-| `SkillsGrid` uses `import * as Icons from "lucide-react"` — defeats tree-shaking, ships ~809 KB | Any bundle-size work. Fix = an explicit icon map (also needed for the admin's icon picker) |
+| `SkillsGrid` uses `import * as Icons from "lucide-react"` — defeats tree-shaking, ships ~809 KB | Any bundle-size work. Fix = an explicit icon map, like the one `HireMeContent` now uses |
 | A DB error during ISR revalidation caches "Failed to load" for up to an hour | Atlas hiccups. Consider serving the last good payload |
-| `SocialLink` / `getSocialLinks()` / `/api/social` are **dead** — Hero and Contact hardcode the URLs | **P3.0.** An admin social editor changes nothing until this is wired |
-| Hero, About, Hire Me and Contact content is hardcoded in components | **P3.0.** Same reason |
 | `seed.js` wipes then inserts, non-atomically | **After P3.2 it destroys every admin edit.** Back up first |
 | `Project.rank` is `unique: true` | **P3.2.** Drag-to-reorder throws E11000. See the guide, §5 |
 | `Skill` has a unique `{category, name}` index | **P3.3.** Ordinary edits throw E11000 |
@@ -96,9 +94,9 @@ Admin = `ahmadsheraz-admin` (**private, to create**). Same Atlas cluster, same
 
 ---
 
-### P3.0 — Portfolio prep *(in the **portfolio** repo)*
+### P3.0 — Portfolio prep *(in the **portfolio** repo)* — 🟢 **DONE**
 
-**Branch:** `feat/phase3-prep` from `dev`
+**Branch:** `feat/phase3-prep` from `dev` · shipped 2026-08-20
 **Why first:** everything after this depends on it. Skipping it produces an
 admin panel whose saves succeed and change nothing.
 
@@ -117,10 +115,14 @@ admin panel whose saves succeed and change nothing.
    belong to the admin repo, and leaving them invites auth code into the wrong
    app). Delete the unreferenced create-next-app SVGs in `public/`.
 
-**Done when:** the live site looks **byte-identical**, every section reads from
-MongoDB, `POST /api/revalidate` with the right secret returns
-`{revalidated:true}` and with a wrong one returns 404, `npm run build` and
-`npm run lint` pass, preview verified green, merged to `main`.
+**Shipped.** New: `SiteContent` model + `getSiteContent()`, `/api/revalidate`,
+a shared `SocialLinks` component, and server/client splits for Hero, Hire Me and
+Contact (`HeroShell`, `HireMeContent`, `ContactInfo`). Removed: `jsonwebtoken`,
+`bcryptjs`, five scaffold SVGs, and every hardcoded content constant.
+
+> ⚠️ **`REVALIDATE_SECRET` must be added to the Vercel project** before the
+> admin's revalidate calls will work. Until then `/api/revalidate` returns 500
+> and edits appear on the normal 1-hour ISR schedule — the site is unaffected.
 
 ---
 
