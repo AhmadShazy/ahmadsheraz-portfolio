@@ -4,6 +4,7 @@ import Skill, { SKILL_CATEGORIES } from "./models/Skill";
 import Experience from "./models/Experience";
 import Education from "./models/Education";
 import SocialLink from "./models/SocialLink";
+import SiteContent from "./models/SiteContent";
 
 // Shared read layer. Both the API routes (used by the Phase 3 admin panel) and
 // the page's server components call these, so there's one query definition per
@@ -43,9 +44,11 @@ export async function getExperience() {
   return serialize(docs);
 }
 
+// `order` first so the sequence is explicit and stable; endYear only breaks
+// ties for rows that haven't been ordered yet.
 export async function getEducation() {
   await connectDB();
-  const docs = await Education.find({}).sort({ endYear: -1 }).lean();
+  const docs = await Education.find({}).sort({ order: 1, endYear: -1 }).lean();
   return serialize(docs);
 }
 
@@ -53,4 +56,28 @@ export async function getSocialLinks() {
   await connectDB();
   const docs = await SocialLink.find({}).sort({ order: 1 }).lean();
   return serialize(docs);
+}
+
+// The single settings document behind the hero, about, hire-me and contact
+// copy. Returns an empty shape rather than null when the document is missing,
+// so a not-yet-seeded database renders an empty section instead of throwing —
+// the same failure behaviour as every other content type here.
+const EMPTY_SITE_CONTENT = {
+  hero: { roles: [], tagline: "", availableForWork: false, availabilityLabel: "" },
+  about: { paragraphs: [], stats: [] },
+  hireMe: { intro: "", services: [] },
+  contact: { email: "", blurb: "" },
+};
+
+export async function getSiteContent() {
+  await connectDB();
+  const doc = await SiteContent.findOne({ singleton: "main" }).lean();
+  if (!doc) return EMPTY_SITE_CONTENT;
+
+  return {
+    hero: { ...EMPTY_SITE_CONTENT.hero, ...(doc.hero || {}) },
+    about: { ...EMPTY_SITE_CONTENT.about, ...(doc.about || {}) },
+    hireMe: { ...EMPTY_SITE_CONTENT.hireMe, ...(doc.hireMe || {}) },
+    contact: { ...EMPTY_SITE_CONTENT.contact, ...(doc.contact || {}) },
+  };
 }
