@@ -320,11 +320,20 @@ Follow [docs/RUNBOOK.md](docs/RUNBOOK.md) §7: separate Vercel project, env vars
 in all three environments, the admin subdomain via Cloudflare (grey-cloud),
 then **enable Vercel Deployment Protection** as a second lock.
 
-**Final security check:**
+The step-by-step procedure lives in the **admin** repo at `docs/DEPLOY.md` —
+that repo is private, so the real hostname can be written down there.
+
+**Final security check** — run in the PORTFOLIO repo, expect no output:
 
 ```bash
-grep -ri "admin\." src/ public/ *.md      # in the PORTFOLIO repo — must be empty
+grep -rinE "admin\.[a-z0-9-]+\.(com|dev|app)" src/ public/ *.md docs/
 ```
+
+This looks for a *hostname*, not the word "admin". The earlier version,
+`grep -ri "admin\."`, matched any sentence ending in "admin." — CLAUDE.md
+contains one, so it reported a hit on a clean repo — and its `*.md` covered only
+the top level, never scanning `docs/`, where `RUNBOOK.md` and `PHASE3_GUIDE.md`
+are the two files most likely to ever carry a hostname.
 
 **Done when:** login and all CRUD work on the live admin, edits appear on the
 portfolio within a minute, the admin URL appears nowhere in the portfolio, and
