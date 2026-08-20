@@ -1,7 +1,11 @@
 "use client";
 
 import { useRef } from "react";
-import { Bot, LayoutDashboard, BarChart3, Sparkles } from "lucide-react";
+import {
+  BarChart3, Blocks, Bot, BrainCircuit, Cloud, Code2, Database,
+  Gauge, LayoutDashboard, LineChart, Plug, Rocket, ShieldCheck,
+  Sparkles, Workflow, Zap,
+} from "lucide-react";
 import SectionWrapper from "@/components/shared/SectionWrapper";
 import GlassCard from "@/components/shared/GlassCard";
 import TealButton from "@/components/shared/TealButton";
@@ -12,10 +16,16 @@ import useStaggerReveal from "@/hooks/useStaggerReveal";
 // set into the bundle, and — because service icons are now admin-editable — an
 // unrecognised name must fall back to something rather than render `undefined`
 // as a component and crash the section.
+//
+// This map is the authoritative list of icons a service can use. The admin
+// panel offers exactly these names — anything outside it silently becomes the
+// fallback, which is the "saves fine, changes nothing" failure this whole phase
+// exists to avoid. **Adding a name here means adding it to the admin's picker
+// too**, and vice versa.
 const ICONS = {
-  Bot,
-  LayoutDashboard,
-  BarChart3,
+  BarChart3, Blocks, Bot, BrainCircuit, Cloud, Code2, Database,
+  Gauge, LayoutDashboard, LineChart, Plug, Rocket, ShieldCheck,
+  Sparkles, Workflow, Zap,
 };
 const FALLBACK_ICON = Sparkles;
 
