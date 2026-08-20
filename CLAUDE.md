@@ -67,6 +67,19 @@
 `mongoose` · **`jose`** (not `jsonwebtoken` — it cannot run in the proxy layer)
 · `bcryptjs`. Details in [docs/PHASE3_GUIDE.md](docs/PHASE3_GUIDE.md).
 
+It lives in the **sibling directory** `../ahmadsheraz-admin` — a separate repo
+with its own `.git`, its own private GitHub remote, and its own `CLAUDE.md`.
+**Do admin work from a session rooted in that folder, not this one.** Only the
+session directory's `CLAUDE.md` loads automatically, so admin work started here
+runs under the wrong rulebook — this file says nothing about `proxy.js`, cookie
+handling or the bcrypt-hash env trap, and those omissions cost real time.
+
+That repo copies `src/lib/mongodb.js` and `src/lib/models/` from here. **If you
+change a schema in this repo, the admin's copy must change too** — both apps
+write the same collections, and a field missing from one side is silent data
+loss. The admin has `npm run check:models` to catch it; there is nothing on this
+side that will.
+
 ---
 
 ## 🎨 Design system — locked, exact values
