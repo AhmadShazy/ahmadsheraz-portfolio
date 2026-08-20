@@ -21,7 +21,7 @@ the contact form delivers email and persists messages.
 | **0** | Foundation — Next.js, Git, design system | 🟢 DONE |
 | **1** | Frontend — 8 sections, 3D hero, responsive, deployed | 🟢 DONE |
 | **2** | Backend — MongoDB, API routes, ISR, Resend contact form | 🟢 DONE |
-| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0–P3.3 done |
+| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0–P3.4 done |
 
 <details>
 <summary>Sub-phase detail for the finished phases</summary>
@@ -248,15 +248,36 @@ reorders leave data untouched; create/edit/delete clean on all three with
 
 ---
 
-### P3.4 — Site content editor
+### P3.4 — Site content editor — 🟢 **DONE**
 
-**Branch:** `feat/admin-sitecontent`
+Shipped 2026-08-20 on `feat/admin-sitecontent` (admin) and `feat/p34-content-icons` (portfolio).
 
-Edits the `SiteContent` document created in P3.0: hero roles (add / remove /
-reorder), tagline, available-for-work toggle, About paragraphs + stats, Hire Me
-services, contact email, and the social links.
+**Shipped.** `/dashboard/content` edits the SiteContent singleton (its own
+route, not the CRUD factory — GET reads the one document, PUT upserts it, and
+POST/DELETE are deliberately absent). `/dashboard/social` uses the factory;
+`platform` is unique there, so E11000 → 409 does real work.
 
-Blocked on P3.0 — without it this screen edits data nothing renders.
+**A portfolio-side change was needed first**, same reasoning as P3.0: both icon
+maps were too narrow for the editor to be honest. `SocialLinks` *filtered out*
+any platform without a brand mark, so adding one would have saved successfully
+and rendered nothing. It now falls back to a generic globe, X was added as a
+real mark, and HireMe's service icons went from 3 to 16. That map is the
+authoritative list the admin's picker mirrors — **change one, change the other.**
+
+Validation refuses what would look broken rather than error: no roles leaves the
+hero with no typewriter, an availability toggle with no label renders no badge,
+a half-filled stat renders a number with no caption.
+
+Verified: 9 endpoints refused unauthenticated, 14 validation cases rejected with
+the document untouched, a full read-modify-save round-trip preserved nested
+arrays, and an admin-added link was confirmed rendering on the running site —
+including an unbranded platform falling back to the globe instead of vanishing.
+
+> ⚠️ **Never round-trip content through a Git Bash shell variable on Windows.**
+> Testing with `curl -d "$VAR"` corrupted every em-dash and middot in the live
+> SiteContent to `U+FFFD`. The app is not at fault — a Node-side fetch
+> round-trip preserves UTF-8 exactly — but the data had to be restored from the
+> pre-flight backup. Drive write tests from Node, not the shell.
 
 ---
 

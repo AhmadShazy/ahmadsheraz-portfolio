@@ -39,6 +39,12 @@
 8. **No wildcard icon imports.** `import * as Icons from "lucide-react"` drags
    the whole set into the bundle. Use an explicit map with a fallback — icon
    names are admin-editable, so an unknown one must not render `undefined`.
+9. **An admin-editable value must always render something.** The icon map in
+   `HireMeContent` and the brand marks in `SocialLinks` are the authoritative
+   lists the admin panel mirrors — widening one means widening the other.
+   Anything unrecognised falls back visibly (Sparkles, a generic globe); it must
+   never be filtered out, because a link that silently disappears looks like the
+   admin failed to save.
 7. **`GlassCard` is the only place card hover is defined.** Resting faint-teal
    border → solid teal + `scale(1.02)`. Do **not** re-add per-card hover CSS;
    `hoverBorder={false}` opts out.
