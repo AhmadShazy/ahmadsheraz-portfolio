@@ -10,7 +10,9 @@ const EducationSchema = new mongoose.Schema({
   coursework: { type: [String], default: [] },
   // Final Year Project summary
   fyp: { type: String, trim: true },
-});
+  // Explicit sequence, so two degrees ending in the same year stay deterministic
+  order: { type: Number, default: 0 },
+}, { timestamps: true });
 
 export default mongoose.models.Education ||
   mongoose.model("Education", EducationSchema);

@@ -12,7 +12,7 @@ const ExperienceSchema = new mongoose.Schema({
   description: { type: String, trim: true },
   bullets: { type: [String], default: [] },
   order: { type: Number, default: 0 },
-});
+}, { timestamps: true });
 
 export default mongoose.models.Experience ||
   mongoose.model("Experience", ExperienceSchema);

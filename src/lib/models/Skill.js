@@ -19,7 +19,7 @@ const SkillSchema = new mongoose.Schema({
   icon: { type: String, trim: true },
   // Order within the category
   order: { type: Number, default: 0 },
-});
+}, { timestamps: true });
 
 // A skill name can repeat across categories (e.g. InfluxDB), but not within one
 SkillSchema.index({ category: 1, name: 1 }, { unique: true });

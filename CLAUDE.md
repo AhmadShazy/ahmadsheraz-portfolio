@@ -36,6 +36,9 @@
    edit will "appear immediately".
 6. **`npm run seed` wipes and reinserts** all content collections (it preserves
    `messages`). Once the admin panel is live, it destroys real edits.
+8. **No wildcard icon imports.** `import * as Icons from "lucide-react"` drags
+   the whole set into the bundle. Use an explicit map with a fallback — icon
+   names are admin-editable, so an unknown one must not render `undefined`.
 7. **`GlassCard` is the only place card hover is defined.** Resting faint-teal
    border → solid teal + `scale(1.02)`. Do **not** re-add per-card hover CSS;
    `hoverBorder={false}` opts out.
@@ -130,8 +133,10 @@ Recognition App (7.3) · 6. Income Predictor (6.2) · 7. Fullstack E-Commerce (5
 
 **Bike Buying Analysis — never include.**
 
-Content lives in the database. `src/lib/seed.js` is the code copy used to
-populate it; edit both together until the admin panel exists.
+Content lives in the database — including the hero, about, hire-me and contact
+copy, which moved into a `SiteContent` singleton in P3.0. `src/lib/seed.js` is
+the code copy used to populate it; edit both together until the admin panel
+exists.
 
 ---
 
@@ -187,10 +192,15 @@ feat/x   ← one feature per branch, always from dev.
 ## 📁 Where things live
 
 ```
-src/app/          layout.js · page.js (ISR) · globals.css · api/{contact,projects,skills,education,experience,social}
+src/app/          layout.js · page.js (ISR) · globals.css · api/{contact,projects,skills,education,experience,social,revalidate}
 src/components/   shared/ (GlassCard, Navbar, Footer, SectionWrapper, TealButton)
                   Hero/ About/ Skills/ Projects/ Education/ Experience/ HireMe/ Contact/
 src/lib/          mongodb.js (connection + pinned dbName) · data.js (shared read layer) · seed.js · models/
+
+Sections that need the browser are split: a server component fetches (e.g.
+`HeroSection`, `HireMeSection`, `ContactSection`) and a client child renders
+(`HeroShell`, `HireMeContent`, `ContactInfo`). Icon *names* cross that boundary,
+never icon components.
 src/hooks/        useReducedMotion.js · useStaggerReveal.js
 ```
 
