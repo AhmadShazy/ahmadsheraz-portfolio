@@ -21,7 +21,7 @@ the contact form delivers email and persists messages.
 | **0** | Foundation — Next.js, Git, design system | 🟢 DONE |
 | **1** | Frontend — 8 sections, 3D hero, responsive, deployed | 🟢 DONE |
 | **2** | Backend — MongoDB, API routes, ISR, Resend contact form | 🟢 DONE |
-| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0 done |
+| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0, P3.1 done |
 
 <details>
 <summary>Sub-phase detail for the finished phases</summary>
@@ -126,9 +126,9 @@ Contact (`HeroShell`, `HireMeContent`, `ContactInfo`). Removed: `jsonwebtoken`,
 
 ---
 
-### P3.1 — Admin app scaffold + authentication *(new repo)*
+### P3.1 — Admin app scaffold + authentication *(new repo)* — 🟢 **DONE**
 
-**Branch:** `feat/admin-setup-auth` in the new `ahmadsheraz-admin` repo
+Built 2026-08-20 in the new `ahmadsheraz-admin` repo (local; see the note below).
 
 ```bash
 npx create-next-app@latest ahmadsheraz-admin --js --tailwind --app --src-dir --import-alias "@/*" --yes
@@ -151,10 +151,26 @@ npm install mongoose jose bcryptjs
    `ADMIN_PASSWORD_HASH` locally — **never in chat** (guide §2).
 10. **Private** GitHub repo, `main`/`dev` branches, first push.
 
-**Done when:** correct password → dashboard; wrong → 401; 5 wrong → 429;
-`/dashboard` and `/api/admin/*` both redirect/401 without a valid cookie; the
-cookie is `httpOnly` + `Secure` + `SameSite=Lax`; logout genuinely clears it;
-`npm run build` passes with **no** middleware-deprecation warning.
+**Shipped.** `jose` + `src/proxy.js` (not `middleware.js`), password-only login,
+DB-counted brute-force limiter that fails closed, logout route, gated dashboard,
+noindex metadata, `.env.example`, and the portfolio's models copied in with
+"⚠️ COPY — change both" headers.
+
+Verified against a production build: `/dashboard` and `/api/admin/*` both refuse
+an absent, garbage, or `alg=none`-forged token; 5 wrong passwords lock out and
+the lockout holds even for the correct one; success returns a cookie with
+HttpOnly + Secure + SameSite=Lax + Path=/ + Max-Age=86400; logout clears it;
+a successful login resets the failure counter.
+
+Two runtime traps were found by testing and are now documented in the guide §0:
+Next's env loader eats a raw bcrypt hash out of `.env.local`, and setting a
+cookie needs `NextResponse`, not `Response`.
+
+> ⚠️ **Two owner steps remain before P3.2:**
+> 1. Create the **private** GitHub repo `ahmadsheraz-admin` and push (`gh` is not
+>    installed on this machine, so the remote could not be added automatically).
+> 2. Replace the throwaway test password hash in the admin's `.env.local` with
+>    one for a real password — see that repo's `.env.example`.
 
 ---
 
