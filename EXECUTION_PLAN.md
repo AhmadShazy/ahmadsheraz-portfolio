@@ -21,7 +21,7 @@ the contact form delivers email and persists messages.
 | **0** | Foundation — Next.js, Git, design system | 🟢 DONE |
 | **1** | Frontend — 8 sections, 3D hero, responsive, deployed | 🟢 DONE |
 | **2** | Backend — MongoDB, API routes, ISR, Resend contact form | 🟢 DONE |
-| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0, P3.1, P3.2 done |
+| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0–P3.3 done |
 
 <details>
 <summary>Sub-phase detail for the finished phases</summary>
@@ -59,7 +59,7 @@ Deliberately unfixed. Raise them rather than rediscovering them.
 | A DB error during ISR revalidation caches "Failed to load" for up to an hour | Atlas hiccups. Consider serving the last good payload |
 | `seed.js` wipes then inserts, non-atomically | **After P3.2 it destroys every admin edit.** Back up first |
 | `Project.rank` is `unique: true` — **kept deliberately** | Any code writing ranks. Use the admin's two-pass `bulkWrite`; never update one rank alone |
-| `Skill` has a unique `{category, name}` index | **P3.3.** Ordinary edits throw E11000 |
+| `Skill` has a unique `{category, name}` index | Any code writing skills. The admin maps E11000 → 409; same name in a different category is legal and the seed relies on it |
 | Deleting a `Message` resets that sender's contact rate-limit counter | **P3.5.** Prefer archiving |
 
 **Owner-deferred — do NOT action without explicit instruction:**
@@ -213,19 +213,38 @@ backup afterwards.
 
 ---
 
-### P3.3 — Skills, Experience, Education CRUD
+### P3.3 — Skills, Experience, Education CRUD — 🟢 **DONE**
 
-**Branch:** `feat/admin-content`
+Shipped 2026-08-20 on `feat/admin-content` in the admin repo.
 
-Same pattern as P3.2, three more resources. Reuse what it already built:
-`requireSession()`, `revalidatePortfolio()`, and the validate-then-write shape
-in `src/lib/validateProject.js`.
+**Shipped.** Built from one `crudRoute()` factory rather than three copies —
+three hand-written copies means three places to forget the session check or
+revalidation. Projects stays separate because its unique `rank` needs the
+two-pass parking dance.
 
-- Skills: category dropdown from `SKILL_CATEGORIES`; icon **picker** backed by
-  the real lucide export list — a free-text icon crashes the live Skills section
-  (guide §5). Catch E11000 → 409, never 500.
-- Experience: dynamic bullet add/remove; `order` controls sequence.
-- Education: add an `order` field while you are here.
+All three `{category, name}` E11000 paths on Skills return a readable 409;
+same-name-different-category stays legal (the seed relies on it — InfluxDB is
+both a Database and a Data Engineering tool). `order` on these schemas is NOT
+unique, so their reorder is a single `bulkWrite`.
+
+**The icon risk was overstated in this plan.** The portfolio resolves icons as
+`Icons[name] || Icons.Circle`, so an unknown name shows a circle rather than
+crashing. Only lucide's three non-component exports (`default`, `icons`,
+`module.exports`) would break a render, and those are rejected by name.
+
+The admin's Skills list groups by category — a flat run of 37 interleaved rows
+was correct and unusable.
+
+Verified against the real cluster: 15 endpoints refused unauthenticated; 14
+validation cases rejected; reversing all 37 skills and restoring works; rejected
+reorders leave data untouched; create/edit/delete clean on all three with
+`order` preserved across PUT; the public Skills section renders unchanged.
+
+> ⚠️ **The numeric-value validation bug from P3.2 reappeared.** `asText()`
+> returns `""` for any non-string, so a numeric year read as missing and skipped
+> every check after it — an end year before the start year saved successfully.
+> There is now an explicit `isBlank()` helper. **Do not test a required-field
+> check only with strings.**
 
 ---
 
