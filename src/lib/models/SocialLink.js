@@ -8,7 +8,7 @@ const SocialLinkSchema = new mongoose.Schema({
   // Icon identifier; brand marks are rendered as inline SVG on the client
   icon: { type: String, trim: true },
   order: { type: Number, default: 0 },
-});
+}, { timestamps: true });
 
 export default mongoose.models.SocialLink ||
   mongoose.model("SocialLink", SocialLinkSchema);

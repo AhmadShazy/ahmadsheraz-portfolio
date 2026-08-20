@@ -76,9 +76,13 @@ three environments: Production, Preview, Development).
 | `RESEND_API_KEY` | no | Contact form still persists messages without it |
 | `CONTACT_FROM_EMAIL` | no | Must be a Resend-verified sender |
 | `IP_HASH_SALT` | no | Derived from `MONGODB_URI` when unset |
+| `REVALIDATE_SECRET` | no | Authenticates `POST /api/revalidate`. Unset ⇒ the endpoint refuses everything and the page refreshes on its normal 1-hour schedule. The admin app needs the **identical** value |
 
-Phase 3 adds `REVALIDATE_SECRET` to this list — see
-[PHASE3_GUIDE.md](PHASE3_GUIDE.md) §3.
+Generate the revalidate secret with:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+```
 
 **Never paste a secret into chat, a commit, or a markdown file.**
 

@@ -16,7 +16,7 @@ const ProjectSchema = new mongoose.Schema({
   isFeatured: { type: Boolean, default: true },
   tags: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now },
-});
+}, { timestamps: true });
 
 // Reuse the compiled model across HMR reloads / serverless invocations
 export default mongoose.models.Project ||

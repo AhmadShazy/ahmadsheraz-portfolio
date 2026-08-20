@@ -16,6 +16,7 @@ import Skill from "./models/Skill.js";
 import Experience from "./models/Experience.js";
 import Education from "./models/Education.js";
 import SocialLink from "./models/SocialLink.js";
+import SiteContent from "./models/SiteContent.js";
 import mongoose from "mongoose";
 
 const PROJECTS = [
@@ -206,6 +207,64 @@ const SOCIAL_LINKS = [
   { platform: "LinkedIn", url: "https://linkedin.com/in/ahmadshazy", icon: "LinkedinIcon", order: 1 },
 ];
 
+// The prose that used to be hardcoded in components. Values are copied
+// verbatim from what was shipping, so seeding changes nothing visible.
+const SITE_CONTENT = {
+  singleton: "main",
+  hero: {
+    roles: [
+      "AI/ML Engineer",
+      "Data Engineer",
+      "Backend Engineer",
+      "Full-Stack Developer",
+      "Problem Solver",
+    ],
+    tagline: "Building intelligent systems that scale.",
+    availableForWork: true,
+    availabilityLabel: "Available for AI Projects",
+  },
+  about: {
+    paragraphs: [
+      "I'm Ahmad Sheraz — a Computer Science student with a deep focus on AI/ML, Data Engineering, and Backend Engineering. I don't just write code — I engineer systems that think, scale, and solve real problems.",
+      "From building multimodal AI systems that detect human emotion in real time, to designing distributed data pipelines that handle high-velocity IoT streams, I approach every project with the mindset of a systems engineer — not just a developer.",
+      "Currently building AI-powered products that make businesses smarter. Always learning. Always shipping.",
+    ],
+    stats: [
+      { label: "Years Coding", value: "3+" },
+      { label: "Projects Built", value: "8+" },
+      { label: "Fields of Expertise", value: "AI/ML · Data Eng · Backend", full: true },
+    ],
+  },
+  hireMe: {
+    intro:
+      "I build AI-powered web applications and smart management systems for small businesses that want to automate and think smarter.",
+    services: [
+      {
+        icon: "Bot",
+        title: "AI-Powered Web Applications",
+        description:
+          "Intelligent apps with AI built in from the ground up — chatbots, document generators, smart search, and recommendation engines.",
+      },
+      {
+        icon: "LayoutDashboard",
+        title: "Smart Management Systems",
+        description:
+          "Business automation for SMBs — inventory, attendance, customer management, and workflows that make operations smarter.",
+      },
+      {
+        icon: "BarChart3",
+        title: "Data Pipelines & Dashboards",
+        description:
+          "Make sense of your data — automated pipelines, real-time dashboards, and reporting that turns raw data into clear decisions.",
+      },
+    ],
+  },
+  contact: {
+    email: "sheraz@ahmadsheraz.com",
+    blurb: "Open to AI projects, collaborations, and smart system builds.",
+  },
+};
+
 async function seed() {
   await connectDB();
   console.log("connected to:", mongoose.connection.name);
@@ -218,6 +277,7 @@ async function seed() {
     Experience.deleteMany({}),
     Education.deleteMany({}),
     SocialLink.deleteMany({}),
+    SiteContent.deleteMany({}),
   ]);
   console.log("cleared content collections (messages preserved)");
 
@@ -229,12 +289,15 @@ async function seed() {
     SocialLink.insertMany(SOCIAL_LINKS),
   ]);
 
+  await SiteContent.create(SITE_CONTENT);
+
   console.log("seeded:");
   console.log("  projects   :", projects.length);
   console.log("  skills     :", skills.length);
   console.log("  experience :", experience.length);
   console.log("  education  :", education.length);
   console.log("  social     :", social.length);
+  console.log("  siteContent: 1 document");
 
   await mongoose.disconnect();
   console.log("done");

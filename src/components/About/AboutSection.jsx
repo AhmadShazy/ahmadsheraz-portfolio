@@ -1,28 +1,21 @@
 import Image from "next/image";
 import SectionWrapper from "@/components/shared/SectionWrapper";
 import GlassCard from "@/components/shared/GlassCard";
-
-// Bio copy. Still hardcoded — moves to the SiteContent document in P3.0 so
-// the admin panel can edit it.
-const BIO_PARAGRAPHS = [
-  "I'm Ahmad Sheraz — a Computer Science student with a deep focus on AI/ML, Data Engineering, and Backend Engineering. I don't just write code — I engineer systems that think, scale, and solve real problems.",
-  "From building multimodal AI systems that detect human emotion in real time, to designing distributed data pipelines that handle high-velocity IoT streams, I approach every project with the mindset of a systems engineer — not just a developer.",
-  "Currently building AI-powered products that make businesses smarter. Always learning. Always shipping.",
-];
-
-// Quick stats. Also hardcoded until P3.0. Availability is intentionally NOT a stat here —
-// the "Available for work" pill under the photo is the single source of that.
-// The Fields stat spans the full width for a balanced 3-stat layout.
-const STATS = [
-  { label: "Years Coding", value: "3+" },
-  { label: "Projects Built", value: "8+" },
-  { label: "Fields of Expertise", value: "AI/ML · Data Eng · Backend", full: true },
-];
+import { getSiteContent } from "@/lib/data";
 
 // About section: bio on the left; on the right ONE glass card combining a
 // profile photo (+ availability pill) and the quick stats, split by a teal
 // divider. Both columns stack on mobile. Reveals on scroll via SectionWrapper.
-export default function AboutSection() {
+//
+// Bio, stats and the availability label all come from the SiteContent document
+// so the admin panel can edit them. The "Available for work" pill here is the
+// single source of that status in this section — it is intentionally NOT also
+// a stat.
+export default async function AboutSection() {
+  const { hero, about } = await getSiteContent();
+  const paragraphs = about.paragraphs ?? [];
+  const stats = about.stats ?? [];
+
   return (
     <SectionWrapper id="about" className="px-6 py-20 lg:py-28">
       <div className="mx-auto max-w-6xl">
@@ -43,7 +36,7 @@ export default function AboutSection() {
               className="absolute left-0 top-1 bottom-1 w-1 rounded-full bg-teal/40"
             />
             <div className="space-y-5">
-              {BIO_PARAGRAPHS.map((paragraph, i) => (
+              {paragraphs.map((paragraph, i) => (
                 <p
                   key={i}
                   className="text-base leading-relaxed text-text-secondary sm:text-lg"
@@ -82,9 +75,9 @@ export default function AboutSection() {
                 className="my-6 h-px w-full bg-teal-border"
               />
 
-              {/* Section 2 — quick stats (3, availability dropped) */}
+              {/* Section 2 — quick stats */}
               <div className="grid grid-cols-2 gap-6">
-                {STATS.map((stat) => (
+                {stats.map((stat) => (
                   <div key={stat.label} className={stat.full ? "col-span-2" : ""}>
                     <p className="text-2xl font-bold text-teal">{stat.value}</p>
                     <p className="mt-1 text-sm font-medium text-text-secondary">
@@ -95,15 +88,17 @@ export default function AboutSection() {
               </div>
 
               {/* The single "Available for work" indicator, below the stats */}
-              <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/40 px-3 py-1.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
-                </span>
-                <span className="text-sm font-medium text-text-secondary">
-                  Available for work
-                </span>
-              </div>
+              {hero.availableForWork && (
+                <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/40 px-3 py-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
+                  </span>
+                  <span className="text-sm font-medium text-text-secondary">
+                    Available for work
+                  </span>
+                </div>
+              )}
             </GlassCard>
           </div>
         </div>
