@@ -21,7 +21,7 @@ the contact form delivers email and persists messages.
 | **0** | Foundation — Next.js, Git, design system | 🟢 DONE |
 | **1** | Frontend — 8 sections, 3D hero, responsive, deployed | 🟢 DONE |
 | **2** | Backend — MongoDB, API routes, ISR, Resend contact form | 🟢 DONE |
-| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0–P3.4 done |
+| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0–P3.5 done · only the deploy (P3.6) remains |
 
 <details>
 <summary>Sub-phase detail for the finished phases</summary>
@@ -60,7 +60,7 @@ Deliberately unfixed. Raise them rather than rediscovering them.
 | `seed.js` wipes then inserts, non-atomically | **After P3.2 it destroys every admin edit.** Back up first |
 | `Project.rank` is `unique: true` — **kept deliberately** | Any code writing ranks. Use the admin's two-pass `bulkWrite`; never update one rank alone |
 | `Skill` has a unique `{category, name}` index | Any code writing skills. The admin maps E11000 → 409; same name in a different category is legal and the seed relies on it |
-| Deleting a `Message` resets that sender's contact rate-limit counter | **P3.5.** Prefer archiving |
+| Deleting a `Message` resets that sender's contact rate-limit counter | Any inbox work. The admin archives instead — measured and confirmed unchanged across an archive |
 
 **Owner-deferred — do NOT action without explicit instruction:**
 **WCAG AA contrast.** The locked palette is below AA for small text (teal
@@ -281,13 +281,34 @@ including an unbranded platform falling back to the globe instead of vanishing.
 
 ---
 
-### P3.5 — Contact inbox
+### P3.5 — Contact inbox — 🟢 **DONE**
 
-**Branch:** `feat/admin-inbox`
+Shipped 2026-08-20 on `feat/admin-inbox`.
 
-Message list (newest first), expand to read, read/unread toggle, unread badge in
-the nav, archive. **Never display `ipHash`.** Prefer archive over delete —
-deleting resets that sender's rate-limit counter (guide §5).
+**Shipped.** List newest first, expand to read (which marks it read), read/unread
+toggle, archive with a separate archived view, unread badge on the dashboard, and
+a reply-by-email link. `ipHash` is stripped in both the API serializer and the
+server-rendered page.
+
+Only `isRead` and `isArchived` are writable — a message is a record of what a
+visitor actually sent, and an inbox where that can be edited is one where
+evidence quietly changes. Verified: a PATCH carrying `subject` is refused and
+does not mutate it.
+
+**Archive vs delete was confirmed, not assumed.** `/api/contact` counts stored
+messages per `ipHash`, so deleting hands that sender part of their allowance
+back; the per-sender count was measured across an archive and is unchanged. The
+delete dialog says so and offers &ldquo;Archive instead&rdquo; as an equally
+prominent button.
+
+Needed a schema change in **both** repos (`Message.isArchived`) — `npm run
+check:models` caught the drift on a real change, which is what it was built for.
+
+> ⚠️ **A missing field does not match a literal `false`.** The six existing
+> messages predate `isArchived`, so `{ isArchived: false }` returned **zero** and
+> the inbox looked empty while six messages existed. Queries use `$ne: true`
+> (covers missing, null and false) and the existing rows were backfilled. Any
+> future field added to a populated collection has the same trap.
 
 ---
 
