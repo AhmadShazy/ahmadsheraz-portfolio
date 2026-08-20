@@ -588,10 +588,21 @@ The admin is only as hidden as its weakest edge:
   The portfolio has neither today; listing the subdomain there would publish the
   very thing being hidden.
 - The old checklist item *"admin URL not in portfolio robots.txt"* passes
-  vacuously and should be replaced by: **grep the portfolio for the string.**
+  vacuously and should be replaced by: **grep the portfolio for a hostname.**
   ```bash
-  grep -ri "admin\." src/ public/ *.md
+  grep -rinE "admin\.[a-z0-9-]+\.(com|dev|app)" src/ public/ *.md docs/
   ```
+  Match a hostname, not the word. `grep -ri "admin\."` — the form this guide
+  carried until 2026-08-20 — matches any sentence ending in "admin.", and
+  CLAUDE.md contains one, so it flagged a clean repo. A check that cries wolf
+  gets ignored, which is worse than no check. Its `*.md` was also top-level
+  only: `docs/` went unscanned, and that is where a hostname would most
+  plausibly end up.
+
+  Read the exit code, or let the matches print. Do **not** pipe it through
+  `head` with a `|| echo "clean"` fallback — `head` exits 0 whatever grep did,
+  so the fallback never fires and an empty result is indistinguishable from a
+  clean one.
 
 ---
 
@@ -615,7 +626,7 @@ Do this once before P3.2 ships and again before any bulk operation.
 - [ ] Logout actually clears the session (verify in devtools → Application)
 - [ ] Every content type: create, edit, delete, reorder — no E11000, no 500s
 - [ ] An edit is visible on **www.ahmadsheraz.com** within a minute
-- [ ] `grep -ri "admin\." src/ public/ *.md` in the portfolio returns nothing
+- [ ] The hostname grep in §7 returns nothing in the portfolio repo
 - [ ] The admin's own URL returns Vercel's protection screen when logged out
 - [ ] `npm run build` and `npm run lint` pass in **both** repos
 - [ ] The portfolio still scores the same on Speed Insights as before P3.0
