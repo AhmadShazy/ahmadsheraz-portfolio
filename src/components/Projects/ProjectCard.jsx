@@ -51,8 +51,12 @@ export default function ProjectCard({ project }) {
         <h3 className="text-lg font-bold text-text-primary">{title}</h3>
         <p className="mt-1 text-sm font-semibold text-teal">{rating}/10</p>
 
-        {/* Description — capped to keep cards tidy */}
-        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-text-secondary">
+        {/* Description — shown in full, never clamped.
+            A line-clamp here cut every description off mid-sentence with an
+            ellipsis and no way to read the rest, which is worse than a slightly
+            taller card. The grid stretches cards in a row to equal height
+            anyway, so the tallest description sets the row and the others match. */}
+        <p className="mt-3 text-sm leading-relaxed text-text-secondary">
           {description}
         </p>
 
