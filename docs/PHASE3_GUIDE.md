@@ -10,7 +10,7 @@ gives the replacement.
 
 ---
 
-## 0. The five things the old plan got wrong
+## 0. What the old plan got wrong, and what building it turned up
 
 Read these before writing any code. Each one was a real dead end.
 
@@ -21,6 +21,8 @@ Read these before writing any code. Each one was a real dead end.
 | 3 | Admin edits "reflect on the portfolio immediately" | The homepage is an **ISR snapshot with `revalidate = 3600`**. Worst case ~1 hour, and the first visitor after expiry still gets the *old* page | Add an on-demand revalidate hook **in the portfolio repo** — §3 |
 | 4 | Drag to reorder projects updates `rank` | `Project.rank` is `unique: true`. Any swap collides ⇒ **E11000** | Reorder via `bulkWrite` with a parking offset — §5 |
 | 5 | Build editors for Hero text and Social Links | Hero, About, Hire Me, Contact and the social URLs are **hardcoded in components**. Those edits change nothing on the live site | Wire them to the DB first, in **P3.0** — §4 |
+| 6 | *(not in the old plan — hit while building P3.1)* | A raw bcrypt hash in `.env.local` is eaten by Next's `$VAR` expansion, so the **correct** password is rejected as wrong | Base64 locally, raw on Vercel — §2 |
+| 7 | *(not in the old plan — hit while building P3.1)* | `Response.json()` has no `.cookies`; setting the session cookie throws at runtime despite a clean build | Use `NextResponse.json()` — §1 |
 
 **The consequence of #3 and #5 together:** Phase 3 *must* touch the portfolio
 repo. The old rule "Phase 3 never touches the portfolio app" is impossible —
@@ -154,6 +156,7 @@ verify independently too — one bad `matcher` edit should not expose writes.
 
 ```js
 // src/app/api/auth/login/route.js
+import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { createToken, sessionCookie } from "@/lib/auth";
 
@@ -172,7 +175,8 @@ export async function POST(request) {
     return Response.json({ error: "Incorrect password." }, { status: 401 });
   }
 
-  const res = Response.json({ ok: true });
+  // NextResponse, NOT the Web API Response — see the warning below.
+  const res = NextResponse.json({ ok: true });
   res.cookies.set(sessionCookie(await createToken()));
   return res;
 }
@@ -181,6 +185,11 @@ export async function POST(request) {
 `bcryptjs` imports Node's `crypto` at the top level, so it may **only** be used
 in a route handler — never in `proxy.js`.
 
+> ⚠️ **Setting a cookie requires `NextResponse`, not `Response`.** `.cookies` is
+> a Next extension; the Web API `Response` silently lacks it, so
+> `res.cookies.set(...)` throws *"Cannot read properties of undefined"* — at
+> **runtime**, with a clean build and a 500 that explains nothing.
+
 ### Logout must be a route, not client JS
 
 The old plan installed `js-cookie` to clear the cookie. It cannot: the cookie is
@@ -188,10 +197,11 @@ The old plan installed `js-cookie` to clear the cookie. It cannot: the cookie is
 
 ```js
 // src/app/api/auth/logout/route.js
+import { NextResponse } from "next/server";
 import { sessionCookie } from "@/lib/auth";
 
 export async function POST() {
-  const res = Response.json({ ok: true });
+  const res = NextResponse.json({ ok: true }); // NextResponse — see above
   res.cookies.set(sessionCookie("", 0)); // same name/path, expired
   return res;
 }
@@ -255,14 +265,59 @@ rejects the correct password with a 401 that looks exactly like a typo.
 `src/lib/mongodb.js`; if the copied file loses that, the admin writes to the
 `test` database, every save appears to succeed, and nothing changes on the site.
 
-Generate the secrets locally, never in chat:
+Generate the secrets locally, never in chat. `JWT_SECRET`:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 ```
 
+### ⚠️ The bcrypt hash needs two different formats, and this is not cosmetic
+
+Next's env loader (`@next/env` → dotenv-expand) performs **`$VAR` expansion on
+values read from `.env` files**. A bcrypt hash starts with `$2b$12$`, so
+`$2b`, `$12` and the segment after are all read as variable references and
+replaced with nothing.
+
+Measured against the installed Next: a 60-character hash came back as **52
+characters**, and with a different salt, as an **empty string**. `bcrypt.compare`
+then returns false and the login screen rejects the **correct** password with a
+401 that looks exactly like a typo. **None of the usual escapes help** —
+`'…'`, `"…"`, `\$` and `$$` were all tested and all fail.
+
+**Production is unaffected**, verified: Vercel injects env vars into
+`process.env` before the app boots and deploys no `.env` file, so nothing
+expands. This bites *only* local development — which is exactly where someone
+concludes their password is wrong and starts changing things.
+
+Use base64 locally, where it survives because base64 contains no `$`:
+
 ```bash
+# → .env.local
+node -e "console.log(Buffer.from(require('bcryptjs').hashSync(process.argv[1],12)).toString('base64'))" "YOUR-PASSWORD"
+```
+
+```bash
+# → the Vercel dashboard (raw, which is what everyone expects)
 node -e "console.log(require('bcryptjs').hashSync(process.argv[1],12))" "YOUR-PASSWORD"
+```
+
+Read it through a helper that accepts either, so pasting the wrong one into the
+wrong place cannot half-work:
+
+```js
+// src/lib/passwordHash.js
+const BCRYPT = /^\$2[aby]\$\d{2}\$/;
+
+export function readAdminPasswordHash() {
+  const raw = (process.env.ADMIN_PASSWORD_HASH || "").trim();
+  if (!raw) return "";
+  if (BCRYPT.test(raw)) return raw;                        // already a bcrypt hash
+  try {
+    const decoded = Buffer.from(raw, "base64").toString("utf8").trim();
+    if (BCRYPT.test(decoded)) return decoded;              // the base64 form
+  } catch {}
+  return "";                                               // neither → fail loudly
+}
 ```
 
 ---
