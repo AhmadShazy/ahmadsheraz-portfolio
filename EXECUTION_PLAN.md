@@ -21,7 +21,7 @@ the contact form delivers email and persists messages.
 | **0** | Foundation — Next.js, Git, design system | 🟢 DONE |
 | **1** | Frontend — 8 sections, 3D hero, responsive, deployed | 🟢 DONE |
 | **2** | Backend — MongoDB, API routes, ISR, Resend contact form | 🟢 DONE |
-| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0, P3.1 done |
+| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0, P3.1, P3.2 done |
 
 <details>
 <summary>Sub-phase detail for the finished phases</summary>
@@ -58,7 +58,7 @@ Deliberately unfixed. Raise them rather than rediscovering them.
 | `SkillsGrid` uses `import * as Icons from "lucide-react"` — defeats tree-shaking, ships ~809 KB | Any bundle-size work. Fix = an explicit icon map, like the one `HireMeContent` now uses |
 | A DB error during ISR revalidation caches "Failed to load" for up to an hour | Atlas hiccups. Consider serving the last good payload |
 | `seed.js` wipes then inserts, non-atomically | **After P3.2 it destroys every admin edit.** Back up first |
-| `Project.rank` is `unique: true` | **P3.2.** Drag-to-reorder throws E11000. See the guide, §5 |
+| `Project.rank` is `unique: true` — **kept deliberately** | Any code writing ranks. Use the admin's two-pass `bulkWrite`; never update one rank alone |
 | `Skill` has a unique `{category, name}` index | **P3.3.** Ordinary edits throw E11000 |
 | Deleting a `Message` resets that sender's contact rate-limit counter | **P3.5.** Prefer archiving |
 
@@ -174,9 +174,9 @@ cookie needs `NextResponse`, not `Response`.
 
 ---
 
-### P3.2 — Projects CRUD
+### P3.2 — Projects CRUD — 🟢 **DONE**
 
-**Branch:** `feat/admin-projects`
+Shipped 2026-08-20 on `feat/admin-projects` in the admin repo.
 
 Table (rank · title · rating · featured · actions), add/edit form, delete with
 confirmation, drag-to-reorder. `/api/admin/projects` + `/api/admin/projects/[id]`
@@ -187,8 +187,29 @@ confirmation, drag-to-reorder. `/api/admin/projects` + `/api/admin/projects/[id]
 - Call `revalidatePortfolio()` after every successful write.
 - **Back up the database before this ships** (guide §8).
 
-**Done when:** every operation works against real data, an edit appears on
-www.ahmadsheraz.com within a minute, unauthenticated requests get 401.
+**Shipped.** `/api/admin/projects` (GET, POST, PATCH) +
+`/api/admin/projects/[id]` (PUT, DELETE), each verifying the session inside the
+handler; a dashboard screen with add/edit/delete/reorder; server-side validation;
+and `npm run backup`.
+
+**Decision — the unique `rank` index was KEPT**, against the guide's stated
+preference for dropping it. `ProjectCard` renders the rank literally as "#3", so
+duplicates would be visible on the live site, and keeping it avoids a cross-repo
+schema change. Every rank write is a two-pass `bulkWrite` instead. Rank is not
+editable via PUT and not accepted on POST — ordering has exactly one entry point.
+
+Two bugs the tests caught: rating validation treated any numeric rating as
+missing (a string helper returning `""` for non-strings), and a rejected reorder
+still mutated data because the id check ran after the park pass. Both fixed.
+
+Verified against the real cluster — all five verbs 401 unauthenticated, eleven
+validation cases rejected, reorder of last-to-first with contiguous unique ranks,
+delete closing the gap, and every collection byte-identical to the pre-flight
+backup afterwards.
+
+> The authenticated UI was not visually confirmed — the browser session could not
+> be established from this environment. Click through it once and report anything
+> that looks wrong.
 
 ---
 
@@ -196,7 +217,9 @@ www.ahmadsheraz.com within a minute, unauthenticated requests get 401.
 
 **Branch:** `feat/admin-content`
 
-Same pattern as P3.2, three more resources.
+Same pattern as P3.2, three more resources. Reuse what it already built:
+`requireSession()`, `revalidatePortfolio()`, and the validate-then-write shape
+in `src/lib/validateProject.js`.
 
 - Skills: category dropdown from `SKILL_CATEGORIES`; icon **picker** backed by
   the real lucide export list — a free-text icon crashes the live Skills section
