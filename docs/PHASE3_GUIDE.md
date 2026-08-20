@@ -551,9 +551,21 @@ verbatim, and put this at the top of every copied file:
 // the same session, or the two apps disagree about the shape of the data.
 ```
 
-Add the same rule to the admin repo's `CLAUDE.md`. Two apps writing one
-collection with different schemas is the failure mode worth fearing here — a
-missing field in a copy means the admin silently drops data the site renders.
+Add the same rule to the admin repo's `CLAUDE.md` — and back it with a command,
+because a rule nobody runs is a rule nobody follows. The admin repo has
+`npm run check:models` (`scripts/check-models.mjs`): it diffs every file marked
+as a copy against `../ahmadsheraz-portfolio` and exits non-zero on drift, skips
+admin-only models, and passes silently when the sibling checkout is absent so it
+is safe on Vercel. Run it before any commit touching `src/lib/`.
+
+Two apps writing one collection with different schemas is the failure mode worth
+fearing here — a missing field in a copy means one app silently drops data the
+other renders.
+
+**Keep the sessions separate too.** Only the session directory's `CLAUDE.md`
+loads automatically, so admin work started from the portfolio folder runs
+without any of the admin's rules. Read across the boundary freely; edit in one
+repo at a time.
 
 `jsconfig.json` uses `@/* → ./src/*`, and `create-next-app --import-alias "@/*"`
 reproduces it, so imports resolve unchanged.
