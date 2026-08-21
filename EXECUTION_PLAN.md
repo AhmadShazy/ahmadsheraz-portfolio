@@ -12,16 +12,27 @@ The **living plan**. One sub-phase = one Claude Code session.
 
 ## 📊 Status
 
-**Phases 0, 1 and 2 are COMPLETE and LIVE at https://www.ahmadsheraz.com.**
-The site renders every project, skill, degree and role from MongoDB via ISR, and
-the contact form delivers email and persists messages.
+**Phases 0–3 are COMPLETE and LIVE.** The site renders every project, skill,
+degree and role from MongoDB via ISR, and the contact form delivers email and
+persists messages. The private CMS is live on its own subdomain and edits every
+content type here — including the profile photo — with changes reaching the
+live site in under a minute.
+
+**Work after P3.6, all shipped:** two-step sign-in (username + password, then a
+TOTP code), hand-written RFC 6238 TOTP checked against the specification's own
+vectors, 15-day trusted devices whose revocation also ends the live session,
+a database-backed profile photo with browser-side downscaling and magic-byte
+validation, and the admin's UI brought onto the portfolio's design system.
+
+Guarded by four scripts in the admin repo: `check:auth`, `check:totp`,
+`check:upload` and `check:models`.
 
 | Phase | Scope | Status |
 |---|---|---|
 | **0** | Foundation — Next.js, Git, design system | 🟢 DONE |
 | **1** | Frontend — 8 sections, 3D hero, responsive, deployed | 🟢 DONE |
 | **2** | Backend — MongoDB, API routes, ISR, Resend contact form | 🟢 DONE |
-| **3** | Admin panel — private CMS at a separate subdomain | 🟡 **IN PROGRESS** — P3.0–P3.5 done · only the deploy (P3.6) remains |
+| **3** | Admin panel — private CMS at a separate subdomain | 🟢 **DONE** — P3.0–P3.6 live, plus two-step auth, trusted devices and photo upload |
 
 <details>
 <summary>Sub-phase detail for the finished phases</summary>
@@ -83,7 +94,7 @@ revalidation hook the admin cannot refresh the live page, and without wiring the
 hardcoded sections there is nothing for half the admin to edit.
 
 **Repos:** portfolio = `ahmadsheraz-portfolio` (public, exists).
-Admin = `ahmadsheraz-admin` (**private, to create**). Same Atlas cluster, same
+Admin = `ahmadsheraz-admin` (**private, live**). Same Atlas cluster, same
 `portfolio` database.
 
 > 📖 **Before P3.1, read [docs/PHASE3_GUIDE.md](docs/PHASE3_GUIDE.md) §0.** Five
