@@ -5,7 +5,9 @@
 [![React 19](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-R3F-black?style=for-the-badge&logo=threedotjs&logoColor=white)](https://threejs.org/)
 
-A premium, state-of-the-art personal portfolio website and administration platform built for **Ahmad Sheraz (Shezi)**. This project is engineered as a statement piece to position Ahmad as a serious **AI/ML Engineer, Data Engineer, and Backend Engineer**. 
+A personal portfolio for **Ahmad Sheraz (Shezi)**, engineered as a statement piece positioning him as a serious **AI/ML Engineer, Data Engineer, and Backend Engineer**.
+
+**Every word on this site comes from MongoDB** — projects, skills, experience, education, the hero/about/hire-me/contact copy, social links and the profile photo. Nothing is hardcoded, so it is all editable from a private CMS that lives in a separate repository and deployment. This repo contains no admin code, and never references it.
 
 It transitions away from typical developer web aesthetics, implementing a light-warm luxury brand design language with heavy glassmorphism, responsive 3D elements, scroll-synchronized animations, and a decoupled admin subsystem.
 
@@ -48,14 +50,17 @@ It transitions away from typical developer web aesthetics, implementing a light-
 
 ```text
 src/app/          Root layout, the single ISR-cached page, global styles, and the
-                  /api route handlers (contact, projects, skills, education,
-                  experience, social).
+                  /api route handlers: contact, projects, skills, education,
+                  experience, social, profile-photo (serves the uploaded image)
+                  and revalidate (the CMS's cache-purge hook).
 src/components/   One folder per section (Hero, About, Skills, Projects,
                   Education, Experience, HireMe, Contact) plus shared/ for the
                   glass card, navbar, footer, scroll wrapper and button.
 src/lib/          mongodb.js (cached connection, pinned database name),
                   data.js (the shared read layer every server component calls),
-                  seed.js, and the Mongoose models.
+                  seed.js, and eight Mongoose models — Project, Skill,
+                  Experience, Education, SocialLink, Message, SiteContent and
+                  ProfilePhoto.
 src/hooks/        useReducedMotion, useStaggerReveal.
 ```
 
@@ -76,7 +81,11 @@ This project is built following the structured plan outlined in `EXECUTION_PLAN.
 * **Phase 0 — Foundation** (DONE): Setup Next.js, initialize Git branches, and integrate tailwind theme variables.
 * **Phase 1 — Frontend & Visuals** (DONE): Interactive client-side development featuring full responsive layout, GSAP entry transitions, Typed.js cycling text, and the Three.js particle constellation. 
 * **Phase 2 — Backend & Databases** (DONE): MongoDB schema and connection layer, serverless Route Handlers for dynamic content delivery via ISR, and Resend email integration for the contact form.
-* **Phase 3 — Admin Subsystem** (IN PROGRESS): A completely isolated admin console in its own private repository, deployed separately, for managing site content.
+* **Phase 3 — Admin Subsystem** (DONE): A completely isolated CMS in its own
+  private repository, deployed separately, editing every content type on this
+  site. Two-step sign-in (password + TOTP), trusted devices, and an on-demand
+  revalidation hook so an edit is live in under a minute rather than waiting
+  out the one-hour ISR window.
 
 ---
 
@@ -108,9 +117,13 @@ This project is built following the structured plan outlined in `EXECUTION_PLAN.
    ```bash
    cp .env.example .env.local
    ```
-   `MONGODB_URI` is the only required one; without it the page renders empty.
-   (`JWT_SECRET` and `ADMIN_PASSWORD_HASH` belong to the separate Phase 3 admin
-   app, not to this repo.)
+   `MONGODB_URI` is the only one the page cannot render without. `RESEND_*`
+   powers the contact form, and `REVALIDATE_SECRET` must match the CMS's copy
+   exactly or content edits wait out the full ISR hour instead of appearing in
+   under a minute.
+
+   (`JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH` and `ADMIN_TOTP_SECRET`
+   belong to the separate admin app, not to this repo.)
 
 4. Seed the database with the content defined in `src/lib/seed.js`:
    ```bash
@@ -134,6 +147,17 @@ This project is built following the structured plan outlined in `EXECUTION_PLAN.
   ```bash
   npm run build
   ```
+
+---
+
+## 🖼️ A note on `next.config.mjs`
+
+`images.localPatterns` is not optional decoration. The profile photo is served
+from `/api/profile-photo?v=<upload time>`, and Next 16 **throws during render**
+for a local image whose `src` carries a query string unless its path is listed
+there. Defining the option at all also flips local images from allow-everything
+to allow-listed, so the `{ pathname: "/**", search: "" }` entry is what keeps the
+bundled `public/profile-v2.jpg` fallback working. Both entries are load bearing.
 
 ---
 
