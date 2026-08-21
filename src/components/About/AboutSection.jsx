@@ -1,7 +1,7 @@
 import Image from "next/image";
 import SectionWrapper from "@/components/shared/SectionWrapper";
 import GlassCard from "@/components/shared/GlassCard";
-import { getSiteContent } from "@/lib/data";
+import { getSiteContent, getProfilePhotoMeta } from "@/lib/data";
 
 // About section: bio on the left; on the right ONE glass card combining a
 // profile photo (+ availability pill) and the quick stats, split by a teal
@@ -12,9 +12,20 @@ import { getSiteContent } from "@/lib/data";
 // single source of that status in this section — it is intentionally NOT also
 // a stat.
 export default async function AboutSection() {
-  const { hero, about } = await getSiteContent();
+  const [{ hero, about }, photo] = await Promise.all([
+    getSiteContent(),
+    getProfilePhotoMeta(),
+  ]);
   const paragraphs = about.paragraphs ?? [];
   const stats = about.stats ?? [];
+
+  // The admin-uploaded photo when there is one, otherwise the file that ships
+  // with the repo. The ?v= is the upload time: it makes each photo its own URL,
+  // so the route can cache immutably and Next's image optimizer cannot hand
+  // back the previous face after a change.
+  const photoSrc = photo
+    ? `/api/profile-photo?v=${photo.version}`
+    : "/profile-v2.jpg";
 
   return (
     <SectionWrapper id="about" className="px-6 py-20 lg:py-28">
@@ -59,7 +70,7 @@ export default async function AboutSection() {
                   style={{ background: "rgba(13, 148, 136, 0.06)" }}
                 >
                   <Image
-                    src="/profile-v2.jpg"
+                    src={photoSrc}
                     alt="Ahmad Sheraz"
                     fill
                     sizes="280px"
