@@ -5,6 +5,7 @@ import Experience from "./models/Experience";
 import Education from "./models/Education";
 import SocialLink from "./models/SocialLink";
 import SiteContent from "./models/SiteContent";
+import ProfilePhoto from "./models/ProfilePhoto";
 
 // Shared read layer. Both the API routes (used by the Phase 3 admin panel) and
 // the page's server components call these, so there's one query definition per
@@ -79,5 +80,27 @@ export async function getSiteContent() {
     about: { ...EMPTY_SITE_CONTENT.about, ...(doc.about || {}) },
     hireMe: { ...EMPTY_SITE_CONTENT.hireMe, ...(doc.hireMe || {}) },
     contact: { ...EMPTY_SITE_CONTENT.contact, ...(doc.contact || {}) },
+  };
+}
+
+/**
+ * Metadata for the admin-uploaded profile photo, or null when there is none.
+ *
+ * Deliberately projects the bytes AWAY. This runs during the page render, and
+ * the whole point of keeping the image in its own collection is that a render
+ * never carries it — only /api/profile-photo reads `data`.
+ *
+ * `updatedAt` becomes the version in the image URL, which is what lets that
+ * route cache immutably and still never serve a stale face.
+ */
+export async function getProfilePhotoMeta() {
+  await connectDB();
+  const doc = await ProfilePhoto.findOne({ singleton: "main" })
+    .select("contentType updatedAt")
+    .lean();
+  if (!doc) return null;
+  return {
+    contentType: doc.contentType,
+    version: new Date(doc.updatedAt).getTime(),
   };
 }
