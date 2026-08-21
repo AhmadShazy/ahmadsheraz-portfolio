@@ -318,7 +318,8 @@ check:models` caught the drift on a real change, which is what it was built for.
 
 Follow [docs/RUNBOOK.md](docs/RUNBOOK.md) §7: separate Vercel project, env vars
 in all three environments, the admin subdomain via Cloudflare (grey-cloud),
-then **enable Vercel Deployment Protection** as a second lock.
+then attempt **Vercel Deployment Protection** as a second lock — which the
+current plan refuses for production; see RUNBOOK §7 step 6.
 
 The step-by-step procedure lives in the **admin** repo at `docs/DEPLOY.md` —
 that repo is private, so the real hostname can be written down there.
@@ -337,7 +338,8 @@ are the two files most likely to ever carry a hostname.
 
 **Done when:** login and all CRUD work on the live admin, edits appear on the
 portfolio within a minute, the admin URL appears nowhere in the portfolio, and
-the admin returns Vercel's protection screen when logged out.
+the second lock is either in place or consciously deferred — it is
+**plan-blocked today**, see the admin repo's `docs/DEPLOY.md` §6.
 **Phase 3 complete ✅**
 
 ---

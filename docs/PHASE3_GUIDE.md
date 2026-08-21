@@ -577,8 +577,11 @@ reproduces it, so imports resolve unchanged.
 The admin is only as hidden as its weakest edge:
 
 - **Private GitHub repo.** Not public-with-no-links.
-- **Vercel Deployment Protection** on the admin project — a second lock in front
-  of the app's own login (RUNBOOK §7).
+- **Vercel Deployment Protection** on the admin project — intended as a second
+  lock in front of the app's own login. **Verified unavailable on the current
+  plan for production** (2026-08-21): it is capped at
+  `all_except_custom_domains`, so the live URLs reach the app directly.
+  RUNBOOK §7 step 6, and the admin repo's `docs/DEPLOY.md` §6 for the options.
 - **`noindex` in the admin app**, not the portfolio:
   ```js
   // admin src/app/layout.js
@@ -627,7 +630,8 @@ Do this once before P3.2 ships and again before any bulk operation.
 - [ ] Every content type: create, edit, delete, reorder — no E11000, no 500s
 - [ ] An edit is visible on **www.ahmadsheraz.com** within a minute
 - [ ] The hostname grep in §7 returns nothing in the portfolio repo
-- [ ] The admin's own URL returns Vercel's protection screen when logged out
+- [ ] Second lock covering the live admin URLs — **plan-blocked**; either
+      upgraded, replaced (Cloudflare Access / TOTP), or explicitly accepted
 - [ ] `npm run build` and `npm run lint` pass in **both** repos
 - [ ] The portfolio still scores the same on Speed Insights as before P3.0
 
