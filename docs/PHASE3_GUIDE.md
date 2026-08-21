@@ -577,8 +577,11 @@ reproduces it, so imports resolve unchanged.
 The admin is only as hidden as its weakest edge:
 
 - **Private GitHub repo.** Not public-with-no-links.
-- **Vercel Deployment Protection** on the admin project — a second lock in front
-  of the app's own login (RUNBOOK §7).
+- **Vercel Deployment Protection** on the admin project — intended as a second
+  lock in front of the app's own login. **Verified unavailable on the current
+  plan for production** (2026-08-21): it is capped at
+  `all_except_custom_domains`, so the live URLs reach the app directly.
+  RUNBOOK §7 step 6, and the admin repo's `docs/DEPLOY.md` §6 for the options.
 - **`noindex` in the admin app**, not the portfolio:
   ```js
   // admin src/app/layout.js
@@ -588,10 +591,21 @@ The admin is only as hidden as its weakest edge:
   The portfolio has neither today; listing the subdomain there would publish the
   very thing being hidden.
 - The old checklist item *"admin URL not in portfolio robots.txt"* passes
-  vacuously and should be replaced by: **grep the portfolio for the string.**
+  vacuously and should be replaced by: **grep the portfolio for a hostname.**
   ```bash
-  grep -ri "admin\." src/ public/ *.md
+  grep -rinE "admin\.[a-z0-9-]+\.(com|dev|app)" src/ public/ *.md docs/
   ```
+  Match a hostname, not the word. `grep -ri "admin\."` — the form this guide
+  carried until 2026-08-20 — matches any sentence ending in "admin.", and
+  CLAUDE.md contains one, so it flagged a clean repo. A check that cries wolf
+  gets ignored, which is worse than no check. Its `*.md` was also top-level
+  only: `docs/` went unscanned, and that is where a hostname would most
+  plausibly end up.
+
+  Read the exit code, or let the matches print. Do **not** pipe it through
+  `head` with a `|| echo "clean"` fallback — `head` exits 0 whatever grep did,
+  so the fallback never fires and an empty result is indistinguishable from a
+  clean one.
 
 ---
 
@@ -615,8 +629,9 @@ Do this once before P3.2 ships and again before any bulk operation.
 - [ ] Logout actually clears the session (verify in devtools → Application)
 - [ ] Every content type: create, edit, delete, reorder — no E11000, no 500s
 - [ ] An edit is visible on **www.ahmadsheraz.com** within a minute
-- [ ] `grep -ri "admin\." src/ public/ *.md` in the portfolio returns nothing
-- [ ] The admin's own URL returns Vercel's protection screen when logged out
+- [ ] The hostname grep in §7 returns nothing in the portfolio repo
+- [ ] Second lock covering the live admin URLs — **plan-blocked**; either
+      upgraded, replaced (Cloudflare Access / TOTP), or explicitly accepted
 - [ ] `npm run build` and `npm run lint` pass in **both** repos
 - [ ] The portfolio still scores the same on Speed Insights as before P3.0
 

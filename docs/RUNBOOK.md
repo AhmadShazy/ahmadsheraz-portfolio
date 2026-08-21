@@ -162,9 +162,18 @@ The admin app is a **separate Vercel project** from a **separate private repo**.
 4. Cloudflare → `ahmadsheraz.com` → **DNS → Records** → add the record Vercel
    asked for, **grey-cloud / DNS-only**.
 5. Wait for **Valid Configuration** in Vercel, then confirm HTTPS.
-6. Turn on **Vercel Deployment Protection** for the admin project (Settings →
-   Deployment Protection → *Standard Protection*, applied to production too).
-   This is a second lock in front of the app's own login.
+6. **Vercel Deployment Protection — not available on the current plan.**
+   Standard Protection is enabled on the admin project, but the plan caps it at
+   `all_except_custom_domains`: it gates the per-deployment URLs and leaves both
+   the custom domain and the bare `<project>.vercel.app` alias serving the app.
+   Setting it to `all` is refused with *"Vercel Authentication is not available
+   on your plan for production deployments"*. Verified 2026-08-21.
+
+   The admin therefore runs on its own login alone. Options for a real second
+   lock — Vercel Pro, Cloudflare Access, or app-level TOTP — are weighed in the
+   **admin** repo's `docs/DEPLOY.md` §6. Do not record this step as done because
+   the setting reads "enabled"; it is enabled and it does not cover the live
+   URLs.
 
 **Never reference the admin hostname from the portfolio app** — not in code, not
 in comments, not in `robots.txt`, not in a sitemap, and not in these docs (this
