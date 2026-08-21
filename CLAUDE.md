@@ -1,7 +1,9 @@
 # CLAUDE.md — ahmadsheraz.com
 # Living rules and locked decisions. Read fully, every session.
 
-**Status: Phases 0–2 shipped. Live at https://www.ahmadsheraz.com. Phase 3 (admin panel) is next.**
+**Status: Phases 0–3 shipped. Live at https://www.ahmadsheraz.com, with the
+private CMS live on its own subdomain. All site content — including the
+profile photo — is database-backed and editable without a deploy.**
 
 | Need | File |
 |---|---|
